@@ -1,0 +1,278 @@
+import { useState } from 'react'
+import { toast } from 'sonner'
+import {
+  CircleCheck,
+  Download,
+  FileImage,
+  Info,
+  LogOut,
+  Monitor,
+  ShieldCheck,
+  Smartphone,
+  Trash2,
+} from 'lucide-react'
+import { SEO } from '@/components/shared/SEO'
+import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
+import { GoogleIcon } from '@/components/shared/GoogleIcon'
+import { GlassCard } from '@/components/ui/GlassCard'
+import { Button } from '@/components/ui/Button'
+import { Dialog } from '@/components/ui/Dialog'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { useDocumentStore } from '@/store/useDocumentStore'
+import { useAuthStore } from '@/store/useAuthStore'
+import { useInstallPrompt } from '@/hooks/useInstallPrompt'
+import { useIsStandalone } from '@/hooks/useIsStandalone'
+import { signInWithGoogle, signOutUser } from '@/firebase/auth'
+import { isFirebaseConfigured } from '@/firebase/config'
+import { deleteFileBlob } from '@/services/storage/localFileCache'
+import { APP_NAME, SUPPORTED_IMAGE_EXTENSIONS } from '@/lib/constants'
+import { pluralize } from '@/lib/format'
+
+function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section>
+      <p className="mb-2.5 text-xs font-semibold uppercase tracking-wide text-ink-muted">{title}</p>
+      <GlassCard className="flex flex-col gap-4 p-5">{children}</GlassCard>
+    </section>
+  )
+}
+
+function initialsFromName(name: string | null): string {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+}
+
+function AccountSection() {
+  const user = useAuthStore((state) => state.user)
+  const isLoading = useAuthStore((state) => state.isLoading)
+  const [signingIn, setSigningIn] = useState(false)
+  const [signingOut, setSigningOut] = useState(false)
+
+  const handleSignIn = async () => {
+    setSigningIn(true)
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      const description = error instanceof Error ? error.message : 'Unknown error'
+      toast.error(`Couldn't start sign-in: ${description}`)
+      setSigningIn(false)
+    }
+  }
+
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    try {
+      await signOutUser()
+      toast.success('Signed out')
+    } catch (error) {
+      const description = error instanceof Error ? error.message : 'Unknown error'
+      toast.error(`Couldn't sign out: ${description}`)
+    } finally {
+      setSigningOut(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-3">
+        <Skeleton className="size-10 rounded-[12px]" />
+        <div className="flex flex-1 flex-col gap-1.5">
+          <Skeleton className="h-3.5 w-32" />
+          <Skeleton className="h-3 w-44" />
+        </div>
+      </div>
+    )
+  }
+
+  if (user) {
+    return (
+      <div className="flex items-center gap-3">
+        {user.photoURL ? (
+          <img src={user.photoURL} alt="" className="size-10 shrink-0 rounded-[12px] object-cover" />
+        ) : (
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-sm font-semibold text-ink">
+            {initialsFromName(user.displayName)}
+          </span>
+        )}
+        <div className="flex-1 overflow-hidden">
+          <p className="truncate text-sm font-medium text-ink">{user.displayName ?? 'Signed in'}</p>
+          <p className="truncate text-xs text-ink-muted">{user.email}</p>
+        </div>
+        <Button
+          size="sm"
+          variant="secondary"
+          leadingIcon={<LogOut className="size-3.5" />}
+          loading={signingOut}
+          onClick={() => void handleSignOut()}
+        >
+          Sign out
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8">
+        <GoogleIcon className="size-5" />
+      </span>
+      <div className="flex-1">
+        <p className="text-sm font-medium text-ink">Not signed in</p>
+        <p className="text-xs text-ink-muted">
+          Optional — your documents stay on this device either way.
+        </p>
+      </div>
+      <Button
+        size="sm"
+        variant="secondary"
+        leadingIcon={<GoogleIcon className="size-4" />}
+        loading={signingIn}
+        disabled={!isFirebaseConfigured}
+        onClick={() => void handleSignIn()}
+      >
+        Sign in
+      </Button>
+    </div>
+  )
+}
+
+export function SettingsPage() {
+  const images = useDocumentStore((state) => state.images)
+  const resetDocument = useDocumentStore((state) => state.resetDocument)
+  const { available: installAvailable, promptInstall } = useInstallPrompt()
+  const isStandalone = useIsStandalone()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [clearing, setClearing] = useState(false)
+
+  const handleClearData = async () => {
+    setClearing(true)
+    try {
+      await Promise.all(images.map((image) => deleteFileBlob(image.blobRefId)))
+      resetDocument()
+      toast.success('Local data cleared')
+    } finally {
+      setClearing(false)
+      setConfirmOpen(false)
+    }
+  }
+
+  return (
+    <>
+      <div className="mx-auto flex max-w-2xl flex-col gap-6 px-4 py-10 sm:px-6">
+        <SEO title="Settings" description="Manage your Doclee installation and local data." />
+
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Settings</h1>
+
+        <SectionCard title="Account">
+          <AccountSection />
+        </SectionCard>
+
+        <SectionCard title="Install">
+          {isStandalone ? (
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-success/15 text-success">
+                <CircleCheck className="size-5" />
+              </span>
+              <div>
+                <p className="text-sm font-medium text-ink">Installed</p>
+                <p className="text-xs text-ink-muted">You're running Doclee as an installed app.</p>
+              </div>
+            </div>
+          ) : installAvailable ? (
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
+                <Download className="size-5" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-ink">Install Doclee</p>
+                <p className="text-xs text-ink-muted">Add it to your home screen or dock.</p>
+              </div>
+              <Button size="sm" onClick={() => promptInstall()}>
+                Install
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink-muted">
+                <Smartphone className="size-4" />
+                <Monitor className="-ml-1 size-4" />
+              </span>
+              <p className="text-xs text-ink-muted">
+                Not available right now — on iOS use Share → Add to Home Screen; on Chrome/Edge look
+                for the install icon in the address bar.
+              </p>
+            </div>
+          )}
+        </SectionCard>
+
+        <SectionCard title="Your document">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
+                <FileImage className="size-5" />
+              </span>
+              <div>
+                <p className="text-sm font-medium text-ink">{pluralize(images.length, 'page')} saved</p>
+                <p className="text-xs text-ink-muted">Stored only on this device.</p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="danger"
+              leadingIcon={<Trash2 className="size-3.5" />}
+              disabled={images.length === 0}
+              onClick={() => setConfirmOpen(true)}
+            >
+              Clear
+            </Button>
+          </div>
+        </SectionCard>
+
+        <SectionCard title="About">
+          <div className="flex items-start gap-3">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
+              <Info className="size-5" />
+            </span>
+            <div>
+              <p className="text-sm font-medium text-ink">{APP_NAME}</p>
+              <p className="mt-1 text-xs text-ink-muted">
+                Converts {SUPPORTED_IMAGE_EXTENSIONS.slice(0, 5).join(', ').toUpperCase()} and more into
+                lossless PDFs.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3 border-t border-border-glass pt-4">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
+              <ShieldCheck className="size-5" />
+            </span>
+            <p className="text-xs text-ink-muted">
+              No account required, no server upload. Every conversion runs entirely on your device.
+            </p>
+          </div>
+        </SectionCard>
+      </div>
+      <BottomNavSpacer />
+
+      <Dialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Clear local data?"
+        description="This removes every saved page and setting from this device. It can't be undone."
+        size="sm"
+      >
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" size="sm" onClick={() => setConfirmOpen(false)}>
+            Cancel
+          </Button>
+          <Button variant="danger" size="sm" loading={clearing} onClick={() => void handleClearData()}>
+            Clear data
+          </Button>
+        </div>
+      </Dialog>
+    </>
+  )
+}

@@ -1,0 +1,11 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#050505" />
+  <path
+    d="M 376 268 L 592 268 L 656 332 L 656 756 C 656 769.255 645.255 780 632 780 L 376 780 C 362.745 780 352 769.255 352 756 L 352 292 C 352 278.745 362.745 268 376 268 Z"
+    fill="#FFFFFF"
+  />
+  <path d="M 592 268 L 592 316 C 592 329.255 602.745 340 616 340 L 656 340 Z" fill="#C9C9CE" />
+  <rect x="392" y="440" width="216" height="24" rx="12" fill="#0D0D0D" />
+  <rect x="392" y="500" width="216" height="24" rx="12" fill="#0D0D0D" />
+  <rect x="392" y="560" width="140" height="24" rx="12" fill="#0D0D0D" />
+</svg>

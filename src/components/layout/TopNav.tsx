@@ -1,0 +1,42 @@
+import { Link, NavLink } from 'react-router-dom'
+import { FileImage } from 'lucide-react'
+import { LinkButton } from '@/components/ui/LinkButton'
+import { ToolsMegaMenu } from '@/components/layout/ToolsMegaMenu'
+import { APP_NAME } from '@/lib/constants'
+import { cn } from '@/lib/cn'
+
+export function TopNav() {
+  return (
+    <header className="glass sticky top-0 z-40 border-x-0 border-t-0">
+      <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-10">
+        <Link to="/" className="focus-ring flex items-center gap-2 rounded-[10px]">
+          <span className="flex size-8 items-center justify-center rounded-[10px] bg-white text-black">
+            <FileImage className="size-4.5" strokeWidth={2.25} />
+          </span>
+          <span className="text-base font-semibold tracking-tight text-ink">{APP_NAME}</span>
+        </Link>
+
+        <nav className="hidden items-center gap-1 md:flex">
+          <NavLink
+            to="/tools/image-to-pdf"
+            className={({ isActive }) =>
+              cn(
+                'focus-ring rounded-[10px] px-3 py-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-ink',
+                isActive && 'text-ink',
+              )
+            }
+          >
+            Image to PDF
+          </NavLink>
+          <ToolsMegaMenu />
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <LinkButton to="/tools/image-to-pdf" size="sm" className="hidden sm:inline-flex">
+            New PDF
+          </LinkButton>
+        </div>
+      </div>
+    </header>
+  )
+}
