@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { useDocumentStore } from '@/store/useDocumentStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import { shareOrDownloadPdf } from '@/utils/download'
 import { markExported } from '@/hooks/useHasExported'
 
@@ -11,6 +12,29 @@ export interface ExportState {
   completed: number
   total: number
   errorMessage?: string
+}
+
+/** Best-effort: logs a lightweight history entry (name/date/page count/thumbnail) for signed-in users. Never blocks or fails the export itself. */
+async function logHistoryEntry(fileName: string): Promise<void> {
+  const user = useAuthStore.getState().user
+  if (!user) return
+
+  try {
+    const { images } = useDocumentStore.getState()
+    const firstImage = images[0]
+    if (!firstImage) return
+
+    const [{ createHistoryThumbnail }, { addProjectHistoryEntry }] = await Promise.all([
+      import('@/services/projectHistory/createHistoryThumbnail'),
+      import('@/services/projectHistory/projectHistoryService'),
+    ])
+    const thumbnailDataUrl = await createHistoryThumbnail(firstImage)
+    if (!thumbnailDataUrl) return
+
+    await addProjectHistoryEntry(user.uid, { fileName, pageCount: images.length, thumbnailDataUrl })
+  } catch (error) {
+    console.error('Failed to log export history', error)
+  }
 }
 
 export function usePdfExport() {
@@ -35,6 +59,7 @@ export function usePdfExport() {
       setState((prev) => ({ ...prev, status: 'success' }))
       markExported()
       toast.success('PDF exported')
+      void logHistoryEntry(fileName)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Export failed'
       setState((prev) => ({ ...prev, status: 'error', errorMessage: message }))

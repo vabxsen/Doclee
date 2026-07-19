@@ -2,6 +2,7 @@ import { Link, NavLink } from 'react-router-dom'
 import { FileImage } from 'lucide-react'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { ToolsMegaMenu } from '@/components/layout/ToolsMegaMenu'
+import { AccountMenu } from '@/components/layout/AccountMenu'
 import { APP_NAME } from '@/lib/constants'
 import { cn } from '@/lib/cn'
 
@@ -31,10 +32,11 @@ export function TopNav() {
           <ToolsMegaMenu />
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <LinkButton to="/tools/image-to-pdf" size="sm" className="hidden sm:inline-flex">
             New PDF
           </LinkButton>
+          <AccountMenu />
         </div>
       </div>
     </header>

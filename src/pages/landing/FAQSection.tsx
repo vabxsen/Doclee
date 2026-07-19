@@ -7,12 +7,13 @@ import { snapTransition } from '@/lib/motion'
 const FAQS = [
   {
     question: 'Do I need to create an account?',
-    answer: 'No. Doclee works entirely without sign-up — open it and start converting immediately.',
+    answer:
+      'No. Doclee works entirely without sign-up — open it and start converting immediately. Signing in with Google is optional and only unlocks a synced history of your past exports.',
   },
   {
     question: 'Are my images uploaded to a server?',
     answer:
-      'No. Image decoding, editing, and PDF generation all happen locally in your browser. Nothing leaves your device unless you explicitly export or share it yourself.',
+      'No. Image decoding, editing, and PDF generation all happen locally in your browser. Your images and finished PDFs never leave your device unless you explicitly export or share them yourself. If you sign in, a small thumbnail and file name are stored so your History syncs across devices — never the original files.',
   },
   {
     question: 'Does compression reduce quality?',

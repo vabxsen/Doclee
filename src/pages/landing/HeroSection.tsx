@@ -18,9 +18,6 @@ export function HeroSection() {
   return (
     <section className="mx-auto max-w-[1400px] px-4 pb-16 pt-16 sm:px-6 sm:pt-24 lg:px-10">
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="mx-auto max-w-3xl text-center">
-        <Badge tone="accent" className="mb-5">
-          No account · Works offline · Installable
-        </Badge>
         <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
           Image to PDF, done beautifully.
         </h1>

@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FileImage, Home, LayoutGrid, Settings as SettingsIcon } from 'lucide-react'
+import { History, Home, LayoutGrid, Settings as SettingsIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { snapTransition } from '@/lib/motion'
 
@@ -14,21 +14,17 @@ interface NavTab {
   icon: typeof Home
 }
 
-function TabButton({
-  icon: Icon,
-  label,
-  active,
-  ...props
-}: NavTab & { active: boolean } & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+function tabClassName(active: boolean): string {
+  return cn(
+    'focus-ring relative flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors',
+    active ? 'text-ink' : 'text-ink-muted',
+  )
+}
+
+/** Icon + label + shared active indicator — rendered inside either a NavLink or a plain button, never both nested. */
+function TabContent({ icon: Icon, label, active }: NavTab & { active: boolean }) {
   return (
-    <button
-      type="button"
-      className={cn(
-        'focus-ring relative flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-medium transition-colors',
-        active ? 'text-ink' : 'text-ink-muted',
-      )}
-      {...props}
-    >
+    <>
       {active && (
         <motion.span
           layoutId="bottom-nav-active"
@@ -38,7 +34,7 @@ function TabButton({
       )}
       <Icon className="size-5" />
       {label}
-    </button>
+    </>
   )
 }
 
@@ -46,27 +42,29 @@ export function BottomNav({ toolsOpen, onToggleTools }: BottomNavProps) {
   const location = useLocation()
   const isToolsRoute =
     location.pathname.startsWith('/tools/') && location.pathname !== '/tools/image-to-pdf'
+  const toolsActive = toolsOpen || isToolsRoute
 
   return (
     <nav
       className="glass fixed inset-x-0 bottom-0 z-40 flex border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Primary"
     >
-      <NavLink to="/" end className="flex flex-1">
-        {({ isActive }) => <TabButton icon={Home} label="Home" active={isActive && !toolsOpen} />}
+      <NavLink to="/" end className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+        {({ isActive }) => <TabContent icon={Home} label="Home" active={isActive && !toolsOpen} />}
       </NavLink>
-      <NavLink to="/tools/image-to-pdf" className="flex flex-1">
-        {({ isActive }) => <TabButton icon={FileImage} label="Convert" active={isActive && !toolsOpen} />}
+      <NavLink to="/history" className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+        {({ isActive }) => <TabContent icon={History} label="History" active={isActive && !toolsOpen} />}
       </NavLink>
-      <TabButton
-        icon={LayoutGrid}
-        label="Tools"
-        active={toolsOpen || isToolsRoute}
+      <button
+        type="button"
+        className={tabClassName(toolsActive)}
         onClick={onToggleTools}
         aria-expanded={toolsOpen}
-      />
-      <NavLink to="/settings" className="flex flex-1">
-        {({ isActive }) => <TabButton icon={SettingsIcon} label="Settings" active={isActive && !toolsOpen} />}
+      >
+        <TabContent icon={LayoutGrid} label="Tools" active={toolsActive} />
+      </button>
+      <NavLink to="/settings" className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+        {({ isActive }) => <TabContent icon={SettingsIcon} label="Settings" active={isActive && !toolsOpen} />}
       </NavLink>
     </nav>
   )

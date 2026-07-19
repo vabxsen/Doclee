@@ -79,15 +79,11 @@
 
 @layer components {
   .glass {
-    @apply bg-glass border border-border-glass shadow-[0_8px_32px_rgba(0,0,0,0.36)];
-    backdrop-filter: blur(var(--blur-glass));
-    -webkit-backdrop-filter: blur(var(--blur-glass));
+    @apply bg-glass backdrop-blur-glass border border-border-glass shadow-[0_8px_32px_rgba(0,0,0,0.36)];
   }
 
   .glass-strong {
-    @apply bg-glass-strong border border-border-glass-strong shadow-[0_12px_40px_rgba(0,0,0,0.45)];
-    backdrop-filter: blur(var(--blur-glass));
-    -webkit-backdrop-filter: blur(var(--blur-glass));
+    @apply bg-glass-strong backdrop-blur-glass border border-border-glass-strong shadow-[0_12px_40px_rgba(0,0,0,0.45)];
   }
 
   .focus-ring {

@@ -1,10 +1,15 @@
 rules_version = '2';
 
-// No auth or data model exists in this build yet — everything is
-// local-first (Zustand + IndexedDB) with no Firestore reads/writes wired up.
-// Default-deny until a real data model and auth strategy are designed.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Per-user export history: {fileName, pageCount, thumbnailDataUrl,
+    // createdAt} — a lightweight log, never the original images/PDF.
+    // Only the owning signed-in user may read or write their own entries.
+    match /users/{userId}/history/{historyId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Everything else stays default-deny — no other data model exists yet.
     match /{document=**} {
       allow read, write: if false;
     }

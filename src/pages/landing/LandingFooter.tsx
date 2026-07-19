@@ -16,8 +16,8 @@ export function LandingFooter() {
             </div>
             <p className="mt-3 flex max-w-xs items-start gap-1.5 text-xs text-ink-muted">
               <ShieldCheck className="mt-0.5 size-3.5 shrink-0" />
-              Everything runs on your device. No account, no image ever leaves your browser unless
-              you export or share it yourself.
+              Everything runs on your device. No account needed, and your images never leave your
+              browser unless you export, share, or sign in for synced history.
             </p>
           </div>
 

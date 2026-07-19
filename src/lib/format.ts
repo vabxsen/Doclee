@@ -13,3 +13,11 @@ export function formatPageLabel(index: number, total: number): string {
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
   return `${count} ${count === 1 ? singular : plural}`
 }
+
+export function formatHistoryDate(millis: number): string {
+  return new Date(millis).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}

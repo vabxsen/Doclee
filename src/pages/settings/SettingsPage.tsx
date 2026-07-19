@@ -250,7 +250,9 @@ export function SettingsPage() {
               <ShieldCheck className="size-5" />
             </span>
             <p className="text-xs text-ink-muted">
-              No account required, no server upload. Every conversion runs entirely on your device.
+              No account required. Every conversion runs entirely on your device — signing in only
+              adds a synced History of file names and small previews, never your original images
+              or PDFs.
             </p>
           </div>
         </SectionCard>

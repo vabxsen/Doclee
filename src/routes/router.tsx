@@ -14,6 +14,9 @@ const ComingSoonPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/pages/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 )
+const HistoryPage = lazy(() =>
+  import('@/pages/history/HistoryPage').then((m) => ({ default: m.HistoryPage })),
+)
 const NotFoundPage = lazy(() =>
   import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 )
@@ -27,6 +30,7 @@ export const router = createBrowserRouter([
       { path: 'tools/image-to-pdf', element: <ImageToPdfEditorPage /> },
       { path: 'tools/:slug', element: <ComingSoonPage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'history', element: <HistoryPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },
