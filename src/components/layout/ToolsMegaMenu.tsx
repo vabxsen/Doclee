@@ -69,7 +69,7 @@ export function ToolsMegaMenu() {
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={snapTransition}
               style={{ top: position.top, left: position.left }}
-              className="glass-strong fixed z-50 w-[min(90vw,760px)] -translate-x-1/2 rounded-dialog p-6"
+              className="fixed z-50 w-[min(90vw,760px)] -translate-x-1/2 rounded-dialog border border-border-glass-strong bg-[#1c1c1e] p-6 shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
             >
               <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
                 {CATEGORY_ORDER.map((category) => {

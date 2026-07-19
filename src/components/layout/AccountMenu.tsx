@@ -111,7 +111,7 @@ export function AccountMenu() {
               exit={{ opacity: 0, y: -8, scale: 0.98 }}
               transition={snapTransition}
               style={{ top: position.top, right: position.right }}
-              className="glass-strong fixed z-50 w-64 rounded-dialog p-4"
+              className="fixed z-50 w-64 rounded-dialog border border-border-glass-strong bg-[#1c1c1e] p-4 shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
             >
               {user ? (
                 <div className="flex flex-col gap-3">

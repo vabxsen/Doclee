@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { Toaster } from 'sonner'
@@ -23,6 +23,10 @@ export function AppShell() {
   const location = useLocation()
   const [toolsOpen, setToolsOpen] = useState(false)
 
+  useEffect(() => {
+    setToolsOpen(false)
+  }, [location.pathname])
+
   return (
     <div className="flex min-h-svh flex-col bg-base">
       <TopNav />
@@ -36,7 +40,11 @@ export function AppShell() {
           </AnimatePresence>
         </Suspense>
       </div>
-      <BottomNav toolsOpen={toolsOpen} onToggleTools={() => setToolsOpen((open) => !open)} />
+      <BottomNav
+        toolsOpen={toolsOpen}
+        onToggleTools={() => setToolsOpen((open) => !open)}
+        onCloseTools={() => setToolsOpen(false)}
+      />
       <MobileNav open={toolsOpen} onClose={() => setToolsOpen(false)} />
       <Toaster
         theme="dark"

@@ -24,7 +24,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="glass-strong fixed inset-0 z-50 overflow-y-auto md:hidden"
+          className="fixed inset-x-0 top-16 bottom-0 z-30 overflow-y-auto border-t border-border-glass-strong bg-[#1c1c1e] md:hidden"
         >
           <motion.div
             initial={{ y: 16, opacity: 0 }}

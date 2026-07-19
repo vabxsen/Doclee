@@ -7,6 +7,7 @@ import { snapTransition } from '@/lib/motion'
 interface BottomNavProps {
   toolsOpen: boolean
   onToggleTools: () => void
+  onCloseTools: () => void
 }
 
 interface NavTab {
@@ -38,7 +39,7 @@ function TabContent({ icon: Icon, label, active }: NavTab & { active: boolean })
   )
 }
 
-export function BottomNav({ toolsOpen, onToggleTools }: BottomNavProps) {
+export function BottomNav({ toolsOpen, onToggleTools, onCloseTools }: BottomNavProps) {
   const location = useLocation()
   const isToolsRoute =
     location.pathname.startsWith('/tools/') && location.pathname !== '/tools/image-to-pdf'
@@ -49,10 +50,19 @@ export function BottomNav({ toolsOpen, onToggleTools }: BottomNavProps) {
       className="glass fixed inset-x-0 bottom-0 z-40 flex border-x-0 border-b-0 pb-[env(safe-area-inset-bottom)] md:hidden"
       aria-label="Primary"
     >
-      <NavLink to="/" end className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+      <NavLink
+        to="/"
+        end
+        onClick={onCloseTools}
+        className={({ isActive }) => tabClassName(isActive && !toolsOpen)}
+      >
         {({ isActive }) => <TabContent icon={Home} label="Home" active={isActive && !toolsOpen} />}
       </NavLink>
-      <NavLink to="/history" className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+      <NavLink
+        to="/history"
+        onClick={onCloseTools}
+        className={({ isActive }) => tabClassName(isActive && !toolsOpen)}
+      >
         {({ isActive }) => <TabContent icon={History} label="History" active={isActive && !toolsOpen} />}
       </NavLink>
       <button
@@ -63,7 +73,11 @@ export function BottomNav({ toolsOpen, onToggleTools }: BottomNavProps) {
       >
         <TabContent icon={LayoutGrid} label="Tools" active={toolsActive} />
       </button>
-      <NavLink to="/settings" className={({ isActive }) => tabClassName(isActive && !toolsOpen)}>
+      <NavLink
+        to="/settings"
+        onClick={onCloseTools}
+        className={({ isActive }) => tabClassName(isActive && !toolsOpen)}
+      >
         {({ isActive }) => <TabContent icon={SettingsIcon} label="Settings" active={isActive && !toolsOpen} />}
       </NavLink>
     </nav>
