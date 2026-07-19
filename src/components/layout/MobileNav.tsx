@@ -52,7 +52,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                         <Link
                           to={`/tools/${tool.slug}`}
                           onClick={onClose}
-                          className="focus-ring flex items-center gap-3 rounded-[12px] px-2.5 py-2.5 text-sm text-ink-muted transition-colors hover:bg-white/6 hover:text-ink"
+                          className="focus-ring flex items-center gap-3 rounded-[12px] px-2.5 py-2.5 text-sm text-ink transition-colors hover:bg-white/6"
                         >
                           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-black">
                             <tool.icon className="size-4" />

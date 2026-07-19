@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { toast } from 'sonner'
 import { LogOut, User } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -23,21 +24,35 @@ export function AccountMenu() {
   const [open, setOpen] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
+  const [position, setPosition] = useState({ top: 0, right: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
+
+    const updatePosition = () => {
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+      setPosition({ top: rect.bottom + 12, right: window.innerWidth - rect.right })
+    }
+    updatePosition()
+
     const handlePointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) setOpen(false)
+      const target = event.target as Node
+      if (containerRef.current?.contains(target) || panelRef.current?.contains(target)) return
+      setOpen(false)
     }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') setOpen(false)
     }
     document.addEventListener('pointerdown', handlePointerDown)
     document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('resize', updatePosition)
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown)
       document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('resize', updatePosition)
     }
   }, [open])
 
@@ -86,63 +101,74 @@ export function AccountMenu() {
         )}
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-            transition={snapTransition}
-            className="glass-strong absolute right-0 top-full z-50 mt-3 w-64 rounded-dialog p-4"
-          >
-            {user ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-3">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt="" className="size-10 shrink-0 rounded-[12px] object-cover" />
-                  ) : (
-                    <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-sm font-semibold text-ink">
-                      {initialsFromName(user.displayName)}
-                    </span>
-                  )}
-                  <div className="flex-1 overflow-hidden">
-                    <p className="truncate text-sm font-medium text-ink">{user.displayName ?? 'Signed in'}</p>
-                    <p className="truncate text-xs text-ink-muted">{user.email}</p>
+      {createPortal(
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              ref={panelRef}
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.98 }}
+              transition={snapTransition}
+              style={{ top: position.top, right: position.right }}
+              className="glass-strong fixed z-50 w-64 rounded-dialog p-4"
+            >
+              {user ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt=""
+                        className="size-10 shrink-0 rounded-[12px] object-cover"
+                      />
+                    ) : (
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-sm font-semibold text-ink">
+                        {initialsFromName(user.displayName)}
+                      </span>
+                    )}
+                    <div className="flex-1 overflow-hidden">
+                      <p className="truncate text-sm font-medium text-ink">
+                        {user.displayName ?? 'Signed in'}
+                      </p>
+                      <p className="truncate text-xs text-ink-muted">{user.email}</p>
+                    </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    leadingIcon={<LogOut className="size-3.5" />}
+                    loading={signingOut}
+                    onClick={() => void handleSignOut()}
+                  >
+                    Sign out
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  leadingIcon={<LogOut className="size-3.5" />}
-                  loading={signingOut}
-                  onClick={() => void handleSignOut()}
-                >
-                  Sign out
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                <div>
-                  <p className="text-sm font-medium text-ink">Not signed in</p>
-                  <p className="mt-0.5 text-xs text-ink-muted">
-                    Optional — your documents stay on this device either way.
-                  </p>
+              ) : (
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-ink">Not signed in</p>
+                    <p className="mt-0.5 text-xs text-ink-muted">
+                      Optional — your documents stay on this device either way.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    leadingIcon={<GoogleIcon className="size-4" />}
+                    loading={signingIn}
+                    disabled={!isFirebaseConfigured}
+                    onClick={() => void handleSignIn()}
+                  >
+                    Sign in with Google
+                  </Button>
                 </div>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  leadingIcon={<GoogleIcon className="size-4" />}
-                  loading={signingIn}
-                  disabled={!isFirebaseConfigured}
-                  onClick={() => void handleSignIn()}
-                >
-                  Sign in with Google
-                </Button>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   )
 }
