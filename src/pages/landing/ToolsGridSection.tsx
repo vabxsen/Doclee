@@ -7,7 +7,8 @@ import { staggerContainer, listItem } from '@/lib/motion'
 
 export function ToolsGridSection() {
   return (
-    <section id="tools" className="mx-auto max-w-[1400px] px-4 py-16 sm:px-6 lg:px-10">
+    // Hidden on mobile — the bottom nav's Tools tab already covers discovery there.
+    <section id="tools" className="mx-auto hidden max-w-[1400px] px-4 py-16 sm:px-6 md:block lg:px-10">
       <div className="mx-auto mb-10 max-w-xl text-center">
         <h2 className="text-2xl font-semibold tracking-tight text-ink sm:text-3xl">Every tool, one app</h2>
         <p className="mt-2 text-sm text-ink-muted">

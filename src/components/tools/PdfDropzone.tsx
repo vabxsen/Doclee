@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { motion } from 'framer-motion'
-import { UploadCloud } from 'lucide-react'
+import { FileUp, UploadCloud } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { glideTransition } from '@/lib/motion'
 import type { MotionSafeProps } from '@/lib/motionTypes'
@@ -67,6 +68,11 @@ export function PdfDropzone({
           {multiple ? ' files' : ''}
         </p>
       </div>
+      {/* No handler needed — the click bubbles to the dropzone root, which opens the picker. */}
+      <Button className="mt-1" leadingIcon={<FileUp className="size-3.5" />}>
+        Select {fileTypeLabel}
+        {multiple ? 's' : ''}
+      </Button>
     </motion.div>
   )
 }

@@ -32,7 +32,7 @@ const FAQS = [
 ]
 
 export function FAQSection() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0)
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
