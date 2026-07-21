@@ -54,14 +54,9 @@ export function UploadDropzone({ onFilesAccepted, className, compact = false }: 
       >
         <UploadCloud className="size-6" />
       </motion.span>
-      <div>
-        <p className="text-base font-semibold text-ink">
-          {isDragActive ? 'Drop to add' : 'Drop your images here'}
-        </p>
-        <p className="mt-1 text-sm text-ink-muted">
-          or click to browse — PNG, JPG, WEBP, BMP, GIF, TIFF, HEIC, SVG
-        </p>
-      </div>
+      <p className="text-base font-semibold text-ink">
+        {isDragActive ? 'Drop to add' : 'Drop your images here'}
+      </p>
       {/* No handler needed — the click bubbles to the dropzone root, which opens the picker. */}
       <Button className="mt-1" leadingIcon={<ImagePlus className="size-3.5" />}>
         Select Images
