@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, Trash2, Wand2 } from 'lucide-react'
+import { Check, Crop, Plus, Trash2, Wand2 } from 'lucide-react'
 import { ToolPageHeader } from '@/components/tools/ToolPageHeader'
 import { ToolPageLayout } from '@/components/tools/ToolPageLayout'
 import { ResultCard } from '@/components/tools/ResultCard'
@@ -12,6 +12,7 @@ import { CornerAdjuster } from '@/components/scanner/CornerAdjuster'
 import {
   defaultQuadForSize,
   estimateOutputSize,
+  isFullQuad,
   warpQuadToRect,
   type Quad,
 } from '@/services/scanner/perspectiveWarp'
@@ -43,7 +44,8 @@ export function DocumentScannerPage() {
   const [pendingCanvas, setPendingCanvas] = useState<HTMLCanvasElement | null>(null)
   const [pendingImageUrl, setPendingImageUrl] = useState<string | null>(null)
   const [quad, setQuad] = useState<Quad | null>(null)
-  const [enhance, setEnhance] = useState(true)
+  const [cropping, setCropping] = useState(false)
+  const [enhance, setEnhance] = useState(false)
   const [pages, setPages] = useState<ScannedPage[]>([])
   const [processing, setProcessing] = useState(false)
   const [building, setBuilding] = useState(false)
@@ -59,14 +61,20 @@ export function DocumentScannerPage() {
     setPendingCanvas(null)
     setPendingImageUrl(null)
     setQuad(null)
+    setCropping(false)
   }
 
   const confirmPage = async () => {
     if (!pendingCanvas || !quad) return
     setProcessing(true)
     try {
-      const { width, height } = estimateOutputSize(quad)
-      let warped = warpQuadToRect(pendingCanvas, quad, width, height)
+      // Skip the warp entirely when the quad was never adjusted — the full
+      // photo passes through without a lossy resample.
+      let warped = pendingCanvas
+      if (!isFullQuad(quad, pendingCanvas.width, pendingCanvas.height)) {
+        const { width, height } = estimateOutputSize(quad)
+        warped = warpQuadToRect(pendingCanvas, quad, width, height)
+      }
       if (enhance) warped = applyEnhance(warped)
       const thumbUrl = warped.toDataURL('image/jpeg', 0.7)
       setPages((prev) => [...prev, { id: crypto.randomUUID(), canvas: warped, thumbUrl }])
@@ -104,7 +112,7 @@ export function DocumentScannerPage() {
 
   return (
     <ToolPageLayout>
-      <ToolPageHeader icon={tool.icon} title={tool.title} description={tool.description} />
+      <ToolPageHeader icon={tool.icon} title={tool.title} description={tool.description} compact />
 
       {resultBlob ? (
         <ResultCard
@@ -138,27 +146,57 @@ export function DocumentScannerPage() {
 
           {pendingCanvas && pendingImageUrl && quad ? (
             <>
-              <CornerAdjuster
-                imageUrl={pendingImageUrl}
-                naturalWidth={pendingCanvas.width}
-                naturalHeight={pendingCanvas.height}
-                quad={quad}
-                onChange={setQuad}
-              />
-              <GlassCard className="flex items-center justify-between p-4">
+              {cropping ? (
+                <CornerAdjuster
+                  imageUrl={pendingImageUrl}
+                  naturalWidth={pendingCanvas.width}
+                  naturalHeight={pendingCanvas.height}
+                  quad={quad}
+                  onChange={setQuad}
+                />
+              ) : (
+                <img
+                  src={pendingImageUrl}
+                  alt="Captured page"
+                  className="mx-auto max-w-full rounded-[14px]"
+                  style={{ height: '42dvh' }}
+                />
+              )}
+              <GlassCard className="flex items-center justify-between p-3">
                 <Switch
                   id="scan-enhance"
                   checked={enhance}
                   onCheckedChange={setEnhance}
-                  label="Enhance for text (grayscale + contrast)"
+                  label="Black & white text mode"
                 />
                 <Wand2 className="size-4 text-ink-muted" />
               </GlassCard>
-              <div className="flex justify-center gap-3">
-                <Button variant="secondary" onClick={cancelPending} disabled={processing}>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 whitespace-nowrap"
+                  variant="secondary"
+                  onClick={cancelPending}
+                  disabled={processing}
+                >
                   Retake
                 </Button>
-                <Button loading={processing} onClick={() => void confirmPage()}>
+                <Button
+                  size="sm"
+                  className="flex-1 whitespace-nowrap"
+                  variant="secondary"
+                  leadingIcon={cropping ? <Check className="size-3.5" /> : <Crop className="size-3.5" />}
+                  onClick={() => setCropping((prev) => !prev)}
+                  disabled={processing}
+                >
+                  {cropping ? 'Done' : 'Crop image'}
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 whitespace-nowrap"
+                  loading={processing}
+                  onClick={() => void confirmPage()}
+                >
                   Use this page
                 </Button>
               </div>

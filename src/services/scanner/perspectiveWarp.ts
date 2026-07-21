@@ -165,14 +165,23 @@ export function estimateOutputSize(quad: Quad, maxLongEdge = 2200): { width: num
   return { width, height }
 }
 
-/** A sensible default quad inset a few percent from the full image bounds. */
+/** The full image bounds — the default "no crop" quad. */
 export function defaultQuadForSize(width: number, height: number): Quad {
-  const insetX = width * 0.06
-  const insetY = height * 0.06
   return [
-    { x: insetX, y: insetY },
-    { x: width - insetX, y: insetY },
-    { x: width - insetX, y: height - insetY },
-    { x: insetX, y: height - insetY },
+    { x: 0, y: 0 },
+    { x: width, y: 0 },
+    { x: width, y: height },
+    { x: 0, y: height },
   ]
+}
+
+/** True when the quad still covers the entire source, i.e. warping would be a no-op resample. */
+export function isFullQuad(quad: Quad, width: number, height: number): boolean {
+  const [tl, tr, br, bl] = quad
+  return (
+    tl.x === 0 && tl.y === 0 &&
+    tr.x === width && tr.y === 0 &&
+    br.x === width && br.y === height &&
+    bl.x === 0 && bl.y === height
+  )
 }

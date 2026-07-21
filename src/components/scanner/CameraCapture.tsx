@@ -93,7 +93,7 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
       {!cameraFailed && (
         <div
           className="relative mx-auto max-w-full overflow-hidden rounded-[14px] bg-black/40"
-          style={{ height: '32dvh', aspectRatio: '3 / 4' }}
+          style={{ height: '45dvh', aspectRatio: '3 / 4' }}
         >
           <video ref={videoRef} playsInline muted className="size-full object-cover" />
           {!cameraReady && (

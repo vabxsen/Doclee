@@ -53,8 +53,8 @@ export function CornerAdjuster({ imageUrl, naturalWidth, naturalHeight, quad, on
   return (
     <div
       ref={containerRef}
-      className="glass-strong relative w-full touch-none select-none overflow-hidden rounded-[14px]"
-      style={{ aspectRatio: `${naturalWidth} / ${naturalHeight}` }}
+      className="glass-strong relative mx-auto max-w-full touch-none select-none overflow-hidden rounded-[14px]"
+      style={{ height: '42dvh', aspectRatio: `${naturalWidth} / ${naturalHeight}` }}
     >
       <img src={imageUrl} alt="Captured page" className="pointer-events-none absolute inset-0 size-full object-cover" />
       <svg
@@ -62,7 +62,7 @@ export function CornerAdjuster({ imageUrl, naturalWidth, naturalHeight, quad, on
         preserveAspectRatio="none"
         className="pointer-events-none absolute inset-0 size-full"
       >
-        <polygon points={points} fill="rgba(56,189,248,0.18)" stroke="rgb(56,189,248)" strokeWidth={0.6} />
+        <polygon points={points} fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.85)" strokeWidth={0.5} />
       </svg>
       {quad.map((point, index) => (
         <button
@@ -70,7 +70,7 @@ export function CornerAdjuster({ imageUrl, naturalWidth, naturalHeight, quad, on
           type="button"
           aria-label={HANDLE_LABELS[index]}
           onPointerDown={handlePointerDown(index)}
-          className="focus-ring absolute flex size-7 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full border-2 border-sky-400 bg-white/90 shadow-md active:cursor-grabbing"
+          className="focus-ring absolute flex size-7 -translate-x-1/2 -translate-y-1/2 cursor-grab items-center justify-center rounded-full border-2 border-white bg-white/90 shadow-md active:cursor-grabbing"
           style={{ left: `${(point.x / naturalWidth) * 100}%`, top: `${(point.y / naturalHeight) * 100}%` }}
         />
       ))}
