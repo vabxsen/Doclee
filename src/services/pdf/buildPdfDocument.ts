@@ -1,8 +1,12 @@
 import { PDFDocument, StandardFonts } from 'pdf-lib'
-import type { ImageAsset } from '@/types/image'
+import { isNeutralEdits, type ImageAsset } from '@/types/image'
 import { OUTPUT_QUALITY_DPI, type PdfSettings } from '@/types/pdf'
 import { getContentAreaPt, getPageSizePt } from '@/services/pdf/pageGeometry'
-import { embedImageOntoPage } from '@/services/pdf/embedImage'
+import {
+  canEmbedOriginalBytes,
+  embedImageOntoPage,
+  embedOriginalImageOntoPage,
+} from '@/services/pdf/embedImage'
 import { drawWatermarkOnPage } from '@/services/pdf/watermark'
 import { drawPageNumber } from '@/services/pdf/pageNumbers'
 import { applyMetadata } from '@/services/pdf/metadata'
@@ -50,11 +54,17 @@ export async function buildPdfDocument(
     const blob = await getFileBlob(asset.blobRefId)
 
     if (blob) {
-      const file = new File([blob], asset.fileName, { type: asset.mimeType })
-      const { bitmap } = await decodeImageFile(file, { svg: svgTarget })
-
       const page = pdfDoc.addPage([pageSize.width, pageSize.height])
-      await embedImageOntoPage(pdfDoc, page, bitmap, asset, settings, dpi)
+
+      if (isNeutralEdits(asset.edits) && canEmbedOriginalBytes(asset, settings)) {
+        // No edits to bake in — embed the original bytes untouched (truly
+        // lossless, and skips the whole decode → re-raster → re-encode pass).
+        await embedOriginalImageOntoPage(pdfDoc, page, await blob.arrayBuffer(), asset, settings, dpi)
+      } else {
+        const file = new File([blob], asset.fileName, { type: asset.mimeType })
+        const { bitmap } = await decodeImageFile(file, { svg: svgTarget })
+        await embedImageOntoPage(pdfDoc, page, bitmap, asset, settings, dpi)
+      }
 
       if (settings.watermark.enabled && font) {
         drawWatermarkOnPage(page, settings.watermark, font)

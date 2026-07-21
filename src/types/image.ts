@@ -57,6 +57,23 @@ export const DEFAULT_EDITS: ImageEdits = {
   filters: DEFAULT_FILTERS,
 }
 
+/** True when every edit is at its neutral value, i.e. rendering would reproduce the source pixels exactly. */
+export function isNeutralEdits(edits: ImageEdits): boolean {
+  const { crop, filters } = edits
+  return (
+    crop.x === 0 &&
+    crop.y === 0 &&
+    crop.width === 1 &&
+    crop.height === 1 &&
+    edits.rotation === 0 &&
+    !edits.flipH &&
+    !edits.flipV &&
+    (Object.keys(DEFAULT_FILTERS) as (keyof ImageFilters)[]).every(
+      (key) => filters[key] === DEFAULT_FILTERS[key],
+    )
+  )
+}
+
 export interface ImageAsset {
   id: string
   fileName: string
