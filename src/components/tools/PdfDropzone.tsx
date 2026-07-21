@@ -12,6 +12,10 @@ interface PdfDropzoneProps {
   label?: string
   hint?: string
   className?: string
+  /** Defaults to PDF-only; pass a react-dropzone accept map to accept other file types. */
+  accept?: Record<string, string[]>
+  /** Shown after the hint, e.g. "PDF" or "DOCX". */
+  fileTypeLabel?: string
 }
 
 export function PdfDropzone({
@@ -20,6 +24,8 @@ export function PdfDropzone({
   label = 'Drop a PDF here',
   hint = 'or click to browse',
   className,
+  accept = { 'application/pdf': ['.pdf'] },
+  fileTypeLabel = 'PDF',
 }: PdfDropzoneProps) {
   const onDrop = useCallback(
     (accepted: File[]) => {
@@ -30,7 +36,7 @@ export function PdfDropzone({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': ['.pdf'] },
+    accept,
     multiple,
   })
   const rootProps = getRootProps() as MotionSafeProps<ReturnType<typeof getRootProps>>
@@ -56,7 +62,10 @@ export function PdfDropzone({
       </motion.span>
       <div>
         <p className="text-base font-semibold text-ink">{isDragActive ? 'Drop to add' : label}</p>
-        <p className="mt-1 text-sm text-ink-muted">{hint} — PDF{multiple ? ' files' : ''}</p>
+        <p className="mt-1 text-sm text-ink-muted">
+          {hint} — {fileTypeLabel}
+          {multiple ? ' files' : ''}
+        </p>
       </div>
     </motion.div>
   )

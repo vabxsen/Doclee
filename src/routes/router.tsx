@@ -52,26 +52,30 @@ const AddPageNumbersPage = lazy(() =>
 const SignPdfPage = lazy(() =>
   import('@/pages/tools/functional/SignPdfPage').then((m) => ({ default: m.SignPdfPage })),
 )
-const PdfToJpgPage = lazy(() =>
-  import('@/pages/tools/functional/PdfToJpgPage').then((m) => ({ default: m.PdfToJpgPage })),
-)
-const PdfToPngPage = lazy(() =>
-  import('@/pages/tools/functional/PdfToPngPage').then((m) => ({ default: m.PdfToPngPage })),
-)
-const PdfToWebpPage = lazy(() =>
-  import('@/pages/tools/functional/PdfToWebpPage').then((m) => ({ default: m.PdfToWebpPage })),
+const PdfToImagePage = lazy(() =>
+  import('@/pages/tools/functional/PdfToImagePage').then((m) => ({ default: m.PdfToImagePage })),
 )
 const CompressPdfPage = lazy(() =>
   import('@/pages/tools/functional/CompressPdfPage').then((m) => ({ default: m.CompressPdfPage })),
 )
-const DrawOnPdfPage = lazy(() =>
-  import('@/pages/tools/functional/DrawOnPdfPage').then((m) => ({ default: m.DrawOnPdfPage })),
+const PdfMarkupPage = lazy(() =>
+  import('@/pages/tools/functional/PdfMarkupPage').then((m) => ({ default: m.PdfMarkupPage })),
 )
-const HighlightPdfPage = lazy(() =>
-  import('@/pages/tools/functional/HighlightPdfPage').then((m) => ({ default: m.HighlightPdfPage })),
+const LockPdfPage = lazy(() =>
+  import('@/pages/tools/functional/LockPdfPage').then((m) => ({ default: m.LockPdfPage })),
 )
-const AnnotatePdfPage = lazy(() =>
-  import('@/pages/tools/functional/AnnotatePdfPage').then((m) => ({ default: m.AnnotatePdfPage })),
+const UnlockPdfPage = lazy(() =>
+  import('@/pages/tools/functional/UnlockPdfPage').then((m) => ({ default: m.UnlockPdfPage })),
+)
+const DocumentScannerPage = lazy(() =>
+  import('@/pages/tools/functional/DocumentScannerPage').then((m) => ({
+    default: m.DocumentScannerPage,
+  })),
+)
+const ConversionToolPage = lazy(() =>
+  import('@/pages/tools/functional/ConversionToolPage').then((m) => ({
+    default: m.ConversionToolPage,
+  })),
 )
 
 export const router = createBrowserRouter([
@@ -90,13 +94,28 @@ export const router = createBrowserRouter([
       { path: 'tools/watermark-pdf', element: <WatermarkPdfPage /> },
       { path: 'tools/add-page-numbers', element: <AddPageNumbersPage /> },
       { path: 'tools/sign-pdf', element: <SignPdfPage /> },
-      { path: 'tools/pdf-to-jpg', element: <PdfToJpgPage /> },
-      { path: 'tools/pdf-to-png', element: <PdfToPngPage /> },
-      { path: 'tools/pdf-to-webp', element: <PdfToWebpPage /> },
+      { path: 'tools/pdf-to-image', element: <PdfToImagePage /> },
       { path: 'tools/compress-pdf', element: <CompressPdfPage /> },
-      { path: 'tools/draw-on-pdf', element: <DrawOnPdfPage /> },
-      { path: 'tools/highlight-pdf', element: <HighlightPdfPage /> },
-      { path: 'tools/annotate-pdf', element: <AnnotatePdfPage /> },
+      { path: 'tools/markup-pdf', element: <PdfMarkupPage /> },
+      { path: 'tools/lock-pdf', element: <LockPdfPage /> },
+      { path: 'tools/unlock-pdf', element: <UnlockPdfPage /> },
+      { path: 'tools/document-scanner', element: <DocumentScannerPage /> },
+      {
+        path: 'tools/word-to-pdf',
+        element: <ConversionToolPage slug="word-to-pdf" sourceLabel="DOCX" />,
+      },
+      {
+        path: 'tools/pdf-to-word',
+        element: <ConversionToolPage slug="pdf-to-word" sourceLabel="PDF" />,
+      },
+      {
+        path: 'tools/ppt-to-pdf',
+        element: <ConversionToolPage slug="ppt-to-pdf" sourceLabel="PPTX" />,
+      },
+      {
+        path: 'tools/excel-to-pdf',
+        element: <ConversionToolPage slug="excel-to-pdf" sourceLabel="XLSX" />,
+      },
       { path: 'tools/:slug', element: <ComingSoonPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'history', element: <HistoryPage /> },
