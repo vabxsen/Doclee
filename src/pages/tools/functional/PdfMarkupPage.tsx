@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type React from 'react'
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib'
 import { toast } from 'sonner'
-import { Eraser, X } from 'lucide-react'
+import { Eraser, Highlighter, MessageSquare, PenLine, X } from 'lucide-react'
 import { ToolPageHeader } from '@/components/tools/ToolPageHeader'
 import { ToolPageLayout } from '@/components/tools/ToolPageLayout'
 import { PdfDropzone } from '@/components/tools/PdfDropzone'
@@ -10,13 +10,13 @@ import { ResultCard } from '@/components/tools/ResultCard'
 import { Button } from '@/components/ui/Button'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Select } from '@/components/ui/Select'
+import { cn } from '@/lib/cn'
 import { useLoadedPdf } from '@/hooks/useLoadedPdf'
 import { renderPdfPageToDataUrl, baseFileName } from '@/services/pdf/pdfFileIO'
 import { downloadBlob } from '@/utils/download'
 import { getToolBySlug } from '@/pages/tools/toolsRegistry'
-import type { ToolDefinition } from '@/types/tool'
 
-type MarkupMode = 'draw' | 'highlight' | 'annotate'
+type MarkupTool = 'draw' | 'highlight' | 'annotate'
 
 interface Point {
   x: number
@@ -37,27 +37,23 @@ interface Note extends Point {
 
 const PREVIEW_WIDTH = 520
 
-const MODE_COPY: Record<MarkupMode, { instructions: string; suffix: string; empty: string }> = {
-  draw: {
-    instructions: 'Drag to sketch directly on the page.',
-    suffix: 'drawn',
-    empty: 'Draw something before applying.',
-  },
-  highlight: {
-    instructions: 'Drag to draw a highlight over the passage that matters.',
-    suffix: 'highlighted',
-    empty: 'Draw a highlight before applying.',
-  },
-  annotate: {
-    instructions: 'Click anywhere on the page, then type a short note.',
-    suffix: 'annotated',
-    empty: 'Add a note before applying.',
-  },
+const TOOL_OPTIONS: { value: MarkupTool; label: string; icon: typeof PenLine }[] = [
+  { value: 'draw', label: 'Draw', icon: PenLine },
+  { value: 'highlight', label: 'Highlight', icon: Highlighter },
+  { value: 'annotate', label: 'Note', icon: MessageSquare },
+]
+
+const TOOL_INSTRUCTIONS: Record<MarkupTool, string> = {
+  draw: 'Drag to sketch directly on the page.',
+  highlight: 'Drag to draw a highlight over the passage that matters.',
+  annotate: 'Click anywhere on the page, then type a short note.',
 }
 
-export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: string }) {
-  const tool = getToolBySlug(toolSlug) as ToolDefinition
+const tool = getToolBySlug('markup-pdf')!
+
+export function PdfMarkupPage() {
   const [file, setFile] = useState<File | null>(null)
+  const [activeTool, setActiveTool] = useState<MarkupTool>('draw')
   const [pageIndex, setPageIndex] = useState(0)
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null)
   const [bgSize, setBgSize] = useState({ width: PREVIEW_WIDTH, height: PREVIEW_WIDTH })
@@ -77,7 +73,6 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
   const currentRectRef = useRef<Rect | null>(null)
 
   const { doc, pageCount } = useLoadedPdf(file)
-  const copy = MODE_COPY[mode]
 
   useEffect(() => {
     setStrokes([])
@@ -110,26 +105,22 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
     if (!canvas || !ctx) return
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    if (mode === 'draw') {
-      ctx.lineWidth = 2.5
-      ctx.lineCap = 'round'
-      ctx.strokeStyle = '#ff5a5f'
-      for (const stroke of strokes) {
-        if (stroke.length < 2) continue
-        ctx.beginPath()
-        ctx.moveTo(stroke[0]!.x, stroke[0]!.y)
-        for (const point of stroke.slice(1)) ctx.lineTo(point.x, point.y)
-        ctx.stroke()
-      }
+    ctx.lineWidth = 2.5
+    ctx.lineCap = 'round'
+    ctx.strokeStyle = '#ff5a5f'
+    for (const stroke of strokes) {
+      if (stroke.length < 2) continue
+      ctx.beginPath()
+      ctx.moveTo(stroke[0]!.x, stroke[0]!.y)
+      for (const point of stroke.slice(1)) ctx.lineTo(point.x, point.y)
+      ctx.stroke()
     }
 
-    if (mode === 'highlight') {
-      ctx.fillStyle = 'rgba(255, 224, 32, 0.4)'
-      for (const rect of rects) ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
-    }
+    ctx.fillStyle = 'rgba(255, 224, 32, 0.4)'
+    for (const rect of rects) ctx.fillRect(rect.x, rect.y, rect.w, rect.h)
   }
 
-  useEffect(redraw, [strokes, rects, mode])
+  useEffect(redraw, [strokes, rects])
 
   const getPoint = (event: React.PointerEvent<HTMLCanvasElement>): Point => {
     const rect = event.currentTarget.getBoundingClientRect()
@@ -140,14 +131,14 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
     const point = getPoint(event)
     event.currentTarget.setPointerCapture(event.pointerId)
 
-    if (mode === 'draw') {
+    if (activeTool === 'draw') {
       drawingRef.current = true
       currentStrokeRef.current = [point]
-    } else if (mode === 'highlight') {
+    } else if (activeTool === 'highlight') {
       drawingRef.current = true
       dragStartRef.current = point
       currentRectRef.current = { x: point.x, y: point.y, w: 0, h: 0 }
-    } else if (mode === 'annotate') {
+    } else if (activeTool === 'annotate') {
       setPendingNote(point)
       setNoteDraft('')
     }
@@ -157,7 +148,7 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
     if (!drawingRef.current) return
     const point = getPoint(event)
 
-    if (mode === 'draw') {
+    if (activeTool === 'draw') {
       currentStrokeRef.current = [...currentStrokeRef.current, point]
       const canvas = canvasRef.current
       const ctx = canvas?.getContext('2d')
@@ -172,7 +163,7 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
         for (const p of stroke.slice(1)) ctx.lineTo(p.x, p.y)
         ctx.stroke()
       }
-    } else if (mode === 'highlight' && dragStartRef.current) {
+    } else if (activeTool === 'highlight' && dragStartRef.current) {
       const start = dragStartRef.current
       const rect: Rect = {
         x: Math.min(start.x, point.x),
@@ -196,10 +187,10 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
     drawingRef.current = false
     const finishedStroke = currentStrokeRef.current
     const finishedRect = currentRectRef.current
-    if (mode === 'draw' && finishedStroke.length > 1) {
+    if (activeTool === 'draw' && finishedStroke.length > 1) {
       setStrokes((prev) => [...prev, finishedStroke])
     }
-    if (mode === 'highlight' && finishedRect && finishedRect.w > 4 && finishedRect.h > 4) {
+    if (activeTool === 'highlight' && finishedRect && finishedRect.w > 4 && finishedRect.h > 4) {
       setRects((prev) => [...prev, finishedRect])
     }
     currentStrokeRef.current = []
@@ -234,31 +225,27 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
       const pageHeight = page.getSize().height
       const toPdfPoint = (p: Point): Point => ({ x: p.x / scale, y: pageHeight - p.y / scale })
 
-      if (mode === 'draw') {
-        for (const stroke of strokes) {
-          for (let i = 0; i < stroke.length - 1; i++) {
-            const start = toPdfPoint(stroke[i]!)
-            const end = toPdfPoint(stroke[i + 1]!)
-            page.drawLine({ start, end, thickness: 2.5 / scale, color: rgb(0.87, 0.22, 0.22) })
-          }
+      for (const stroke of strokes) {
+        for (let i = 0; i < stroke.length - 1; i++) {
+          const start = toPdfPoint(stroke[i]!)
+          const end = toPdfPoint(stroke[i + 1]!)
+          page.drawLine({ start, end, thickness: 2.5 / scale, color: rgb(0.87, 0.22, 0.22) })
         }
       }
 
-      if (mode === 'highlight') {
-        for (const rect of rects) {
-          const bottomLeft = toPdfPoint({ x: rect.x, y: rect.y + rect.h })
-          page.drawRectangle({
-            x: bottomLeft.x,
-            y: bottomLeft.y,
-            width: rect.w / scale,
-            height: rect.h / scale,
-            color: rgb(1, 0.88, 0.13),
-            opacity: 0.4,
-          })
-        }
+      for (const rect of rects) {
+        const bottomLeft = toPdfPoint({ x: rect.x, y: rect.y + rect.h })
+        page.drawRectangle({
+          x: bottomLeft.x,
+          y: bottomLeft.y,
+          width: rect.w / scale,
+          height: rect.h / scale,
+          color: rgb(1, 0.88, 0.13),
+          opacity: 0.4,
+        })
       }
 
-      if (mode === 'annotate') {
+      if (notes.length > 0) {
         const font = await pdf.embedFont(StandardFonts.Helvetica)
         for (const note of notes) {
           const anchor = toPdfPoint(note)
@@ -284,7 +271,7 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
 
       const outBytes = await pdf.save()
       setResultBlob(new Blob([new Uint8Array(outBytes)], { type: 'application/pdf' }))
-      toast.success(`Page ${copy.suffix}`)
+      toast.success('Page marked up')
     } catch {
       toast.error("Couldn't edit that PDF")
     } finally {
@@ -307,7 +294,7 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
       {resultBlob ? (
         <ResultCard
           title="Changes applied"
-          description={`Page ${pageIndex + 1} has been ${copy.suffix}.`}
+          description={`Page ${pageIndex + 1} has been marked up.`}
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-edited.pdf`)}
           onReset={reset}
         />
@@ -315,6 +302,23 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />
       ) : (
         <>
+          <div className="mx-auto flex w-fit gap-1 rounded-[14px] bg-white/5 p-1">
+            {TOOL_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setActiveTool(value)}
+                className={cn(
+                  'focus-ring flex items-center gap-1.5 rounded-[10px] px-3 py-1.5 text-sm font-medium transition-colors',
+                  activeTool === value ? 'bg-white/12 text-ink' : 'text-ink-muted hover:text-ink',
+                )}
+              >
+                <Icon className="size-4" />
+                {label}
+              </button>
+            ))}
+          </div>
+
           {pageCount > 1 && (
             <div className="mx-auto w-full max-w-xs">
               <Select
@@ -329,7 +333,7 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
             </div>
           )}
 
-          <p className="text-center text-xs text-ink-muted">{copy.instructions}</p>
+          <p className="text-center text-xs text-ink-muted">{TOOL_INSTRUCTIONS[activeTool]}</p>
 
           {backgroundUrl && (
             <GlassCard className="relative mx-auto w-fit select-none p-2">
@@ -396,7 +400,6 @@ export function PdfMarkupPage({ mode, toolSlug }: { mode: MarkupMode; toolSlug: 
               Apply
             </Button>
           </div>
-          {!hasMarkup && <p className="text-center text-xs text-ink-muted/70">{copy.empty}</p>}
         </>
       )}
     </ToolPageLayout>

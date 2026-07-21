@@ -27,7 +27,7 @@ export default defineConfig({
           },
         ],
       },
-      includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'logo.png'],
       manifest: {
         id: '/',
         name: 'Doclee',

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { FileImage, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import { APP_NAME } from '@/lib/constants'
 
 export function LandingFooter() {
@@ -9,9 +9,7 @@ export function LandingFooter() {
         <div className="flex flex-col items-start justify-between gap-8 sm:flex-row">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-[8px] bg-white text-black">
-                <FileImage className="size-4" strokeWidth={2.25} />
-              </span>
+              <img src="/logo.png" alt="" className="size-7 rounded-[8px]" />
               <span className="text-sm font-semibold text-ink">{APP_NAME}</span>
             </div>
             <p className="mt-3 flex max-w-xs items-start gap-1.5 text-xs text-ink-muted">

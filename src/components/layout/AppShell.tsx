@@ -19,13 +19,17 @@ function RouteFallback() {
   )
 }
 
+interface HomeNavState {
+  openTools?: boolean
+}
+
 export function AppShell() {
   const location = useLocation()
   const [toolsOpen, setToolsOpen] = useState(false)
 
   useEffect(() => {
-    setToolsOpen(false)
-  }, [location.pathname])
+    setToolsOpen(Boolean((location.state as HomeNavState | null)?.openTools))
+  }, [location.pathname, location.state])
 
   return (
     <div className="flex min-h-svh flex-col bg-base">

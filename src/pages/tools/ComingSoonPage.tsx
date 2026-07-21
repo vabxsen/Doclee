@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'sonner'
-import { Sparkles, UploadCloud } from 'lucide-react'
-import { useParams } from 'react-router-dom'
+import { ArrowLeft, Sparkles, UploadCloud } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
 import { SEO } from '@/components/shared/SEO'
 import { Badge } from '@/components/ui/Badge'
 import { LinkButton } from '@/components/ui/LinkButton'
@@ -53,6 +53,15 @@ export function ComingSoonPage() {
     <>
       <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-20 text-center sm:px-6">
         <SEO title={tool.title} description={tool.description} />
+
+        <Link
+          to="/"
+          state={{ openTools: true }}
+          className="focus-ring mb-6 flex w-fit items-center gap-1.5 self-start rounded-[10px] px-1 py-1 text-sm text-ink-muted transition-colors hover:text-ink"
+        >
+          <ArrowLeft className="size-4" />
+          Back
+        </Link>
 
         <span className="flex size-16 items-center justify-center rounded-full bg-white/8 text-ink">
           <Icon className="size-7" />

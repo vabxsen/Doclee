@@ -5,6 +5,8 @@ import { ToolPageLayout } from '@/components/tools/ToolPageLayout'
 import { PdfDropzone } from '@/components/tools/PdfDropzone'
 import { ResultCard } from '@/components/tools/ResultCard'
 import { Button } from '@/components/ui/Button'
+import { GlassCard } from '@/components/ui/GlassCard'
+import { Select } from '@/components/ui/Select'
 import { useLoadedPdf } from '@/hooks/useLoadedPdf'
 import { renderPdfPageToCanvas, canvasToBlob, baseFileName } from '@/services/pdf/pdfFileIO'
 import { downloadFileOrZip } from '@/utils/zipDownload'
@@ -18,14 +20,11 @@ const FORMAT_CONFIG: Record<ImageFormat, { mime: string; extension: string; qual
   webp: { mime: 'image/webp', extension: 'webp', quality: 0.9 },
 }
 
-interface PdfToImagePageProps {
-  toolSlug: 'pdf-to-jpg' | 'pdf-to-png' | 'pdf-to-webp'
-  format: ImageFormat
-}
+const tool = getToolBySlug('pdf-to-image')!
 
-export function PdfToImagePage({ toolSlug, format }: PdfToImagePageProps) {
-  const tool = getToolBySlug(toolSlug)!
+export function PdfToImagePage() {
   const [file, setFile] = useState<File | null>(null)
+  const [format, setFormat] = useState<ImageFormat>('jpeg')
   const [converting, setConverting] = useState(false)
   const [entries, setEntries] = useState<{ name: string; blob: Blob }[] | null>(null)
   const { doc, pageCount, loading, error } = useLoadedPdf(file)
@@ -76,6 +75,18 @@ export function PdfToImagePage({ toolSlug, format }: PdfToImagePageProps) {
           {error && <p className="text-center text-sm text-error">{error}</p>}
           {doc && (
             <>
+              <GlassCard className="mx-auto w-full max-w-xs p-5">
+                <Select
+                  label="Format"
+                  value={format}
+                  onChange={(event) => setFormat(event.target.value as ImageFormat)}
+                  options={[
+                    { value: 'jpeg', label: 'JPG' },
+                    { value: 'png', label: 'PNG' },
+                    { value: 'webp', label: 'WEBP' },
+                  ]}
+                />
+              </GlassCard>
               <p className="text-center text-sm text-ink-muted">
                 {pageCount} page{pageCount === 1 ? '' : 's'} ready to export as {format.toUpperCase()}.
               </p>

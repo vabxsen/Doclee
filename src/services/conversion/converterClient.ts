@@ -10,8 +10,6 @@ const SLUG_TO_TARGET_FORMAT: Partial<Record<string, string>> = {
   'ppt-to-pdf': 'pdf',
   'excel-to-pdf': 'pdf',
   'pdf-to-word': 'docx',
-  'pdf-to-ppt': 'pptx',
-  'pdf-to-excel': 'xlsx',
 }
 
 export function getConversionTargetForSlug(slug: string): string | null {
@@ -24,8 +22,6 @@ const SLUG_TO_SOURCE_ACCEPT: Partial<Record<string, Record<string, string[]>>> =
   'ppt-to-pdf': { 'application/vnd.ms-powerpoint': ['.ppt'], 'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.pptx'] },
   'excel-to-pdf': { 'application/vnd.ms-excel': ['.xls'], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] },
   'pdf-to-word': { 'application/pdf': ['.pdf'] },
-  'pdf-to-ppt': { 'application/pdf': ['.pdf'] },
-  'pdf-to-excel': { 'application/pdf': ['.pdf'] },
 }
 
 export function getSourceAcceptForSlug(slug: string): Record<string, string[]> | undefined {

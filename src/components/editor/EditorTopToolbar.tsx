@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, Copy, Minus, Plus, Redo2, SlidersHorizontal, Trash2, Undo2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, Check, Copy, Minus, Plus, Redo2, SlidersHorizontal, Trash2, Undo2 } from 'lucide-react'
 import { IconButton } from '@/components/ui/IconButton'
 import { useDocumentStore } from '@/store/useDocumentStore'
 import { useUiStore } from '@/store/useUiStore'
@@ -10,6 +11,7 @@ import { clamp } from '@/utils/clamp'
 import { KeyboardShortcutsHint } from '@/components/editor/KeyboardShortcutsHint'
 
 export function EditorTopToolbar() {
+  const navigate = useNavigate()
   const { undo, redo, canUndo, canRedo } = useUndoRedo()
   const activeImageId = useDocumentStore((state) => state.activeImageId)
   const removeImage = useDocumentStore((state) => state.removeImage)
@@ -23,6 +25,12 @@ export function EditorTopToolbar() {
   return (
     <div className="glass flex h-14 shrink-0 items-center justify-between border-x-0 border-t-0 px-4">
       <div className="flex items-center gap-1">
+        <IconButton
+          icon={<ArrowLeft className="size-4" />}
+          label="Back"
+          onClick={() => navigate('/', { state: { openTools: true } })}
+        />
+        <div className="mx-2 h-5 w-px bg-border-glass" />
         <IconButton icon={<Undo2 className="size-4" />} label="Undo" disabled={!canUndo} onClick={undo} />
         <IconButton icon={<Redo2 className="size-4" />} label="Redo" disabled={!canRedo} onClick={redo} />
         <div className="mx-2 h-5 w-px bg-border-glass" />

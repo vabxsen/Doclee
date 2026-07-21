@@ -4,11 +4,11 @@ import {
   CircleCheck,
   Download,
   FileImage,
-  Info,
   LogOut,
-  Monitor,
+  Menu,
+  Share,
   ShieldCheck,
-  Smartphone,
+  SquarePlus,
   Trash2,
 } from 'lucide-react'
 import { SEO } from '@/components/shared/SEO'
@@ -27,6 +27,11 @@ import { isFirebaseConfigured } from '@/firebase/config'
 import { deleteFileBlob } from '@/services/storage/localFileCache'
 import { APP_NAME, SUPPORTED_IMAGE_EXTENSIONS } from '@/lib/constants'
 import { pluralize } from '@/lib/format'
+
+function isIOSDevice(): boolean {
+  if (typeof navigator === 'undefined') return false
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+}
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -147,6 +152,7 @@ export function SettingsPage() {
   const isStandalone = useIsStandalone()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [clearing, setClearing] = useState(false)
+  const [installHelpOpen, setInstallHelpOpen] = useState(false)
 
   const handleClearData = async () => {
     setClearing(true)
@@ -158,6 +164,14 @@ export function SettingsPage() {
       setClearing(false)
       setConfirmOpen(false)
     }
+  }
+
+  const handleInstallClick = async () => {
+    if (installAvailable) {
+      await promptInstall()
+      return
+    }
+    setInstallHelpOpen(true)
   }
 
   return (
@@ -182,7 +196,7 @@ export function SettingsPage() {
                 <p className="text-xs text-ink-muted">You're running Doclee as an installed app.</p>
               </div>
             </div>
-          ) : installAvailable ? (
+          ) : (
             <div className="flex items-center gap-3">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
                 <Download className="size-5" />
@@ -191,20 +205,9 @@ export function SettingsPage() {
                 <p className="text-sm font-medium text-ink">Install Doclee</p>
                 <p className="text-xs text-ink-muted">Add it to your home screen or dock.</p>
               </div>
-              <Button size="sm" onClick={() => promptInstall()}>
-                Install
+              <Button size="sm" onClick={() => void handleInstallClick()}>
+                Install App
               </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink-muted">
-                <Smartphone className="size-4" />
-                <Monitor className="-ml-1 size-4" />
-              </span>
-              <p className="text-xs text-ink-muted">
-                Not available right now — on iOS use Share → Add to Home Screen; on Chrome/Edge look
-                for the install icon in the address bar.
-              </p>
             </div>
           )}
         </SectionCard>
@@ -234,9 +237,7 @@ export function SettingsPage() {
 
         <SectionCard title="About">
           <div className="flex items-start gap-3">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
-              <Info className="size-5" />
-            </span>
+            <img src="/logo.png" alt="" className="size-10 shrink-0 rounded-[12px]" />
             <div>
               <p className="text-sm font-medium text-ink">{APP_NAME}</p>
               <p className="mt-1 text-xs text-ink-muted">
@@ -272,6 +273,56 @@ export function SettingsPage() {
           </Button>
           <Button variant="danger" size="sm" loading={clearing} onClick={() => void handleClearData()}>
             Clear data
+          </Button>
+        </div>
+      </Dialog>
+
+      <Dialog
+        open={installHelpOpen}
+        onClose={() => setInstallHelpOpen(false)}
+        title="Install Doclee"
+        description="Your browser hasn't offered the one-tap install yet, but you can add it manually:"
+        size="sm"
+      >
+        <div className="flex flex-col gap-3">
+          {isIOSDevice() ? (
+            <>
+              <div className="flex items-center gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-white/8 text-ink">
+                  <Share className="size-4" />
+                </span>
+                <p className="text-sm text-ink-muted">Tap the Share icon in Safari's toolbar</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-white/8 text-ink">
+                  <SquarePlus className="size-4" />
+                </span>
+                <p className="text-sm text-ink-muted">Scroll down and tap "Add to Home Screen"</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-white/8 text-ink">
+                  <Menu className="size-4" />
+                </span>
+                <p className="text-sm text-ink-muted">Open your browser's ⋮ menu</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-white/8 text-ink">
+                  <SquarePlus className="size-4" />
+                </span>
+                <p className="text-sm text-ink-muted">
+                  Tap "Add to Home screen" or "Install app" — on desktop, look for the install icon
+                  in the address bar instead
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="mt-4 flex justify-end">
+          <Button size="sm" onClick={() => setInstallHelpOpen(false)}>
+            Got it
           </Button>
         </div>
       </Dialog>
