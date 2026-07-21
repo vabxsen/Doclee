@@ -57,6 +57,8 @@ export function ConversionToolPage({ slug, sourceLabel }: ConversionToolPageProp
           description={result.fileName}
           onDownload={() => downloadBlob(result.blob, result.fileName)}
           onReset={reset}
+          resultBlob={result.blob}
+          resultFileName={result.fileName}
         />
       ) : !file ? (
         <PdfDropzone

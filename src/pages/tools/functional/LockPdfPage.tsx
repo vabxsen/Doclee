@@ -55,6 +55,8 @@ export function LockPdfPage() {
           description="Anyone opening this file will need the password you set."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-locked.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-locked.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

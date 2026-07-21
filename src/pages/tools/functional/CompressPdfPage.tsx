@@ -85,6 +85,8 @@ export function CompressPdfPage() {
           description={`${formatBytes(file.size)} → ${formatBytes(resultBlob.size)}`}
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file.name)}-compressed.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file.name)}-compressed.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

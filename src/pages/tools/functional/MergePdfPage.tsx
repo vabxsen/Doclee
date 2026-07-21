@@ -126,6 +126,8 @@ export function MergePdfPage() {
           description={`Combined ${queue.length} PDFs into one document.`}
           onDownload={() => downloadBlob(resultBlob, 'merged.pdf')}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName="merged.pdf"
         />
       ) : (
         <>

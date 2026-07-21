@@ -75,6 +75,8 @@ export function RotatePdfPage() {
           description="Your pages have been rotated."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-rotated.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-rotated.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

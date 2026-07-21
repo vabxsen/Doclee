@@ -70,6 +70,8 @@ export function DeletePagesPage() {
           description={`Deleted ${marked.size} page${marked.size === 1 ? '' : 's'}.`}
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-edited.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-edited.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

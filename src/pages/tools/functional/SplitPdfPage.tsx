@@ -75,6 +75,11 @@ export function SplitPdfPage() {
           downloadLabel={resultCount > 1 ? 'Download .zip' : 'Download'}
           onDownload={() => void downloadFileOrZip(pendingEntries, `${baseFileName(file!.name)}-split.zip`)}
           onReset={reset}
+          resultBlob={pendingEntries[0]?.blob}
+          resultFileName={
+            resultCount === 1 ? pendingEntries[0]!.name : `${baseFileName(file!.name)}-split.zip`
+          }
+          resultPageCount={resultCount}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

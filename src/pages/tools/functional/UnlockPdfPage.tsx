@@ -61,6 +61,8 @@ export function UnlockPdfPage() {
           description="The password has been removed — anyone can open it now."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-unlocked.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-unlocked.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

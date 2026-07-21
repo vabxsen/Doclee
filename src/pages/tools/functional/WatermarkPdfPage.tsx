@@ -61,6 +61,8 @@ export function WatermarkPdfPage() {
           description="Every page now carries your watermark."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-watermarked.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-watermarked.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

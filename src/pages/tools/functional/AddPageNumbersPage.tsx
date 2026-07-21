@@ -60,6 +60,8 @@ export function AddPageNumbersPage() {
           description="Every page is now numbered."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-numbered.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-numbered.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

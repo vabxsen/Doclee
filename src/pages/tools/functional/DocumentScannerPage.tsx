@@ -120,6 +120,8 @@ export function DocumentScannerPage() {
           description={`${pages.length} page${pages.length === 1 ? '' : 's'} saved as a PDF.`}
           onDownload={() => downloadBlob(resultBlob, 'scan.pdf')}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName="scan.pdf"
         />
       ) : (
         <>

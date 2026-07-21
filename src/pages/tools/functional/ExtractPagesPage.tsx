@@ -68,6 +68,8 @@ export function ExtractPagesPage() {
           description={`Pulled ${selected.size} page${selected.size === 1 ? '' : 's'} into a new PDF.`}
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-extracted.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-extracted.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

@@ -66,6 +66,10 @@ export function PdfToImagePage() {
           downloadLabel={entries.length > 1 ? 'Download .zip' : 'Download'}
           onDownload={() => void downloadFileOrZip(entries, `${baseFileName(file!.name)}-images.zip`)}
           onReset={reset}
+          resultFileName={
+            entries.length === 1 ? entries[0]!.name : `${baseFileName(file!.name)}-images.zip`
+          }
+          resultPageCount={entries.length}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />

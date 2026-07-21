@@ -120,6 +120,8 @@ export function SignPdfPage() {
           description="Your signature has been placed on the page."
           onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-signed.pdf`)}
           onReset={reset}
+          resultBlob={resultBlob}
+          resultFileName={`${baseFileName(file!.name)}-signed.pdf`}
         />
       ) : !file ? (
         <PdfDropzone onFilesAccepted={(files) => setFile(files[0]!)} />
