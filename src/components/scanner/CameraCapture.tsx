@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera, ImageUp } from 'lucide-react'
+import { Aperture, Camera, ImageUp } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
 import { GlassCard } from '@/components/ui/GlassCard'
@@ -23,7 +23,8 @@ function bitmapToCanvas(bitmap: ImageBitmap): HTMLCanvasElement {
 export function CameraCapture({ onCapture }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
   const [cameraReady, setCameraReady] = useState(false)
   const [cameraFailed, setCameraFailed] = useState(false)
 
@@ -106,30 +107,48 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
       {cameraFailed && (
         <p className="text-center text-sm text-ink-muted">
-          Camera unavailable — upload a photo of the document instead.
+          Live preview unavailable — take a photo or pick one from your gallery instead.
         </p>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap justify-center gap-2">
         {cameraReady && (
-          <Button leadingIcon={<Camera className="size-3.5" />} onClick={handleCapture}>
+          <Button size="sm" leadingIcon={<Camera className="size-3.5" />} onClick={handleCapture}>
             Capture
           </Button>
         )}
+        {/* Opens the phone's native camera app — full sensor resolution and HDR, far better than a live-stream frame. */}
         <Button
+          size="sm"
+          variant={cameraReady ? 'secondary' : 'primary'}
+          leadingIcon={<Aperture className="size-3.5" />}
+          onClick={() => cameraInputRef.current?.click()}
+        >
+          Take photo
+        </Button>
+        <Button
+          size="sm"
           variant="secondary"
           leadingIcon={<ImageUp className="size-3.5" />}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => galleryInputRef.current?.click()}
         >
-          Upload photo
+          Choose from gallery
         </Button>
       </div>
 
+      {/* `capture` forces the OS camera; the gallery input omits it so phones show the photo picker. */}
       <input
-        ref={fileInputRef}
+        ref={cameraInputRef}
         type="file"
         accept="image/*"
         capture="environment"
+        className="hidden"
+        onChange={(event) => void handleFileChosen(event)}
+      />
+      <input
+        ref={galleryInputRef}
+        type="file"
+        accept="image/*"
         className="hidden"
         onChange={(event) => void handleFileChosen(event)}
       />
