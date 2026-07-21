@@ -1,7 +1,8 @@
 import { useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { motion } from 'framer-motion'
-import { UploadCloud } from 'lucide-react'
+import { ImagePlus, UploadCloud } from 'lucide-react'
+import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
 import { glideTransition } from '@/lib/motion'
 import type { MotionSafeProps } from '@/lib/motionTypes'
@@ -61,6 +62,10 @@ export function UploadDropzone({ onFilesAccepted, className, compact = false }: 
           or click to browse — PNG, JPG, WEBP, BMP, GIF, TIFF, HEIC, SVG
         </p>
       </div>
+      {/* No handler needed — the click bubbles to the dropzone root, which opens the picker. */}
+      <Button className="mt-1" leadingIcon={<ImagePlus className="size-3.5" />}>
+        Select Images
+      </Button>
     </motion.div>
   )
 }
