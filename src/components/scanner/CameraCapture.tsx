@@ -89,8 +89,12 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   return (
     <GlassCard className="flex flex-col items-center gap-4 p-5">
+      {/* Preview height is capped so it plus the buttons below always fit one mobile viewport without scrolling. */}
       {!cameraFailed && (
-        <div className="relative w-full overflow-hidden rounded-[14px] bg-black/40" style={{ aspectRatio: '3 / 4' }}>
+        <div
+          className="relative mx-auto max-w-full overflow-hidden rounded-[14px] bg-black/40"
+          style={{ height: '32dvh', aspectRatio: '3 / 4' }}
+        >
           <video ref={videoRef} playsInline muted className="size-full object-cover" />
           {!cameraReady && (
             <p className="absolute inset-0 flex items-center justify-center text-sm text-ink-muted">

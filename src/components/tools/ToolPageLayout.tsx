@@ -6,7 +6,7 @@ import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
 export function ToolPageLayout({ children }: { children: ReactNode }) {
   return (
     <>
-      <div className="mx-auto flex max-w-3xl flex-col gap-8 px-4 py-14 sm:px-6">
+      <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-14">
         <Link
           to="/"
           state={{ openTools: true }}
