@@ -26,6 +26,9 @@ export const SUPPORTED_IMAGE_MIME_TYPES = [
   'image/svg+xml',
 ] as const
 
+/** Display labels for the formats we accept — shown as badges near image upload entry points. */
+export const SUPPORTED_IMAGE_LABELS = ['PNG', 'JPG', 'JPEG', 'WEBP', 'BMP', 'GIF', 'TIFF', 'HEIC', 'SVG']
+
 export const MAX_UNDO_STACK_SIZE = 50
 
 export const AUTOSAVE_DEBOUNCE_MS = 650

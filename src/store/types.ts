@@ -32,7 +32,8 @@ export interface DocumentActions {
   canUndo: () => boolean
   canRedo: () => boolean
 
-  resetDocument: () => void
+  /** Clears the current document, deleting its cached image blobs first — used any time the user starts a fresh PDF. */
+  resetDocument: () => Promise<void>
 }
 
 export type DocumentStore = DocumentState & DocumentActions

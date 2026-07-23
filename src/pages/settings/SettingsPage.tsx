@@ -24,7 +24,6 @@ import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { useIsStandalone } from '@/hooks/useIsStandalone'
 import { signInWithGoogle, signOutUser } from '@/firebase/auth'
 import { isFirebaseConfigured } from '@/firebase/config'
-import { deleteFileBlob } from '@/services/storage/localFileCache'
 import { APP_NAME, SUPPORTED_IMAGE_EXTENSIONS } from '@/lib/constants'
 import { pluralize } from '@/lib/format'
 
@@ -157,8 +156,7 @@ export function SettingsPage() {
   const handleClearData = async () => {
     setClearing(true)
     try {
-      await Promise.all(images.map((image) => deleteFileBlob(image.blobRefId)))
-      resetDocument()
+      await resetDocument()
       toast.success('Local data cleared')
     } finally {
       setClearing(false)

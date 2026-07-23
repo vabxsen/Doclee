@@ -3,16 +3,22 @@ import { motion } from 'framer-motion'
 import { useImageDecoder } from '@/hooks/useImageDecoder'
 import { UploadDropzone } from '@/components/editor/UploadDropzone'
 import { Badge } from '@/components/ui/Badge'
+import { useDocumentStore } from '@/store/useDocumentStore'
 import { staggerContainer, listItem, fadeInUp } from '@/lib/motion'
-
-const SUPPORTED_LABELS = ['PNG', 'JPG', 'JPEG', 'WEBP', 'BMP', 'GIF', 'TIFF', 'HEIC', 'SVG']
+import { SUPPORTED_IMAGE_LABELS } from '@/lib/constants'
 
 export function HeroSection() {
   const { ingestFiles } = useImageDecoder()
+  const resetDocument = useDocumentStore((state) => state.resetDocument)
   const navigate = useNavigate()
 
+  // This is the "start a new PDF" entry point — any images left over from a
+  // previously finished PDF are discarded first, so they don't silently mix
+  // into the new one.
   const handleFiles = (files: File[]) => {
-    void ingestFiles(files).then(() => navigate('/tools/image-to-pdf'))
+    void resetDocument()
+      .then(() => ingestFiles(files))
+      .then(() => navigate('/tools/image-to-pdf'))
   }
 
   return (
@@ -42,7 +48,7 @@ export function HeroSection() {
         animate="animate"
         className="mx-auto mt-6 flex max-w-2xl flex-wrap justify-center gap-2"
       >
-        {SUPPORTED_LABELS.map((label) => (
+        {SUPPORTED_IMAGE_LABELS.map((label) => (
           <motion.span key={label} variants={listItem}>
             <Badge>{label}</Badge>
           </motion.span>

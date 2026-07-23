@@ -2,10 +2,13 @@ import { Link, NavLink } from 'react-router-dom'
 import { LinkButton } from '@/components/ui/LinkButton'
 import { ToolsMegaMenu } from '@/components/layout/ToolsMegaMenu'
 import { AccountMenu } from '@/components/layout/AccountMenu'
+import { useDocumentStore } from '@/store/useDocumentStore'
 import { APP_NAME } from '@/lib/constants'
 import { cn } from '@/lib/cn'
 
 export function TopNav() {
+  const resetDocument = useDocumentStore((state) => state.resetDocument)
+
   return (
     <header className="glass sticky top-0 z-40 border-x-0 border-t-0">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-10">
@@ -30,7 +33,12 @@ export function TopNav() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <LinkButton to="/tools/image-to-pdf" size="sm" className="hidden sm:inline-flex">
+          <LinkButton
+            to="/tools/image-to-pdf"
+            size="sm"
+            className="hidden sm:inline-flex"
+            onClick={() => void resetDocument()}
+          >
             New PDF
           </LinkButton>
           <AccountMenu />

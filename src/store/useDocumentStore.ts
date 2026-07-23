@@ -7,6 +7,7 @@ import type { PdfSettings } from '@/types/pdf'
 import type { HistoryCommand } from '@/types/history'
 import { MAX_UNDO_STACK_SIZE } from '@/lib/constants'
 import { createId } from '@/utils/id'
+import { deleteFileBlob } from '@/services/storage/localFileCache'
 import type { DocumentStore } from '@/store/types'
 
 /**
@@ -195,6 +196,11 @@ export const useDocumentStore = create<DocumentStore>()(
       canRedo: () => get().redoStack.length > 0,
 
       resetDocument: () => {
+        // Duplicated images share a blobRefId with their source, so dedupe
+        // before deleting — every asset is being discarded together here,
+        // unlike a single removeImage, so there's no "still in use elsewhere" risk.
+        const blobRefIds = new Set(get().images.map((image) => image.blobRefId))
+
         pendingImageEditSnapshots.clear()
         pendingPdfSettingsSnapshot = null
         set({
@@ -204,6 +210,10 @@ export const useDocumentStore = create<DocumentStore>()(
           undoStack: [],
           redoStack: [],
         })
+
+        // Never gate clearing the UI on this — it's cache cleanup, not user-visible state.
+        void Promise.all([...blobRefIds].map((id) => deleteFileBlob(id)))
+        return Promise.resolve()
       },
     }),
     documentPersistOptions,
