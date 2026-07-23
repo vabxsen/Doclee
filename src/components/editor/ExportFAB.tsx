@@ -1,16 +1,16 @@
 import { createPortal } from 'react-dom'
 import { motion } from 'framer-motion'
 import { Download } from 'lucide-react'
-import { usePdfExport } from '@/hooks/usePdfExport'
+import type { usePdfExport } from '@/hooks/usePdfExport'
 import { ExportProgressDialog } from '@/components/editor/ExportProgressDialog'
 import { snapTransition } from '@/lib/motion'
 
 interface ExportFABProps {
+  exportState: ReturnType<typeof usePdfExport>
   disabled?: boolean
 }
 
-export function ExportFAB({ disabled }: ExportFABProps) {
-  const exportState = usePdfExport()
+export function ExportFAB({ exportState, disabled }: ExportFABProps) {
   const dialogOpen = exportState.status === 'building' || exportState.status === 'success' || exportState.status === 'error'
 
   return (

@@ -12,7 +12,7 @@ export function ImageToPdfEditorPage() {
   const redo = useDocumentStore((state) => state.redo)
   const duplicateImage = useDocumentStore((state) => state.duplicateImage)
   const removeImage = useDocumentStore((state) => state.removeImage)
-  const { exportPdf } = usePdfExport()
+  const exportState = usePdfExport()
 
   useKeyboardShortcuts([
     { key: 'z', meta: true, handler: undo },
@@ -20,7 +20,7 @@ export function ImageToPdfEditorPage() {
     { key: 'd', meta: true, handler: () => activeImageId && duplicateImage(activeImageId) },
     { key: 'Delete', handler: () => activeImageId && removeImage(activeImageId) },
     { key: 'Backspace', handler: () => activeImageId && removeImage(activeImageId) },
-    { key: 'e', meta: true, handler: () => void exportPdf() },
+    { key: 'e', meta: true, handler: () => void exportState.exportPdf() },
   ])
 
   return (
@@ -29,7 +29,7 @@ export function ImageToPdfEditorPage() {
         title="Image to PDF"
         description="Convert images into a pixel-perfect, lossless PDF — no account, works offline."
       />
-      {imageCount === 0 ? <EditorEmptyState /> : <ImageWorkspace />}
+      {imageCount === 0 ? <EditorEmptyState /> : <ImageWorkspace exportState={exportState} />}
     </>
   )
 }

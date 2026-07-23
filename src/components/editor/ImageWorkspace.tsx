@@ -4,8 +4,13 @@ import { ThumbnailRail } from '@/components/editor/ThumbnailRail'
 import { CanvasPreview } from '@/components/editor/CanvasPreview'
 import { SettingsPanel } from '@/components/editor/SettingsPanel'
 import { ExportFAB } from '@/components/editor/ExportFAB'
+import type { usePdfExport } from '@/hooks/usePdfExport'
 
-export function ImageWorkspace() {
+interface ImageWorkspaceProps {
+  exportState: ReturnType<typeof usePdfExport>
+}
+
+export function ImageWorkspace({ exportState }: ImageWorkspaceProps) {
   const imageCount = useDocumentStore((state) => state.images.length)
 
   return (
@@ -16,7 +21,7 @@ export function ImageWorkspace() {
         <CanvasPreview />
         <SettingsPanel />
       </div>
-      <ExportFAB disabled={imageCount === 0} />
+      <ExportFAB exportState={exportState} disabled={imageCount === 0} />
     </div>
   )
 }

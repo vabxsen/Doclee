@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 import { useDocumentStore } from '@/store/useDocumentStore'
 import { useAuthStore } from '@/store/useAuthStore'
-import { shareOrDownloadPdf } from '@/utils/download'
+import { downloadBlob, shareBlob } from '@/utils/download'
 import { markExported } from '@/hooks/useHasExported'
 
 export type ExportStatus = 'idle' | 'building' | 'success' | 'error'
@@ -12,7 +12,11 @@ export interface ExportState {
   completed: number
   total: number
   errorMessage?: string
+  resultBlob?: Blob
+  resultFileName?: string
 }
+
+const IDLE_STATE: ExportState = { status: 'idle', completed: 0, total: 0 }
 
 /** Best-effort: logs a lightweight history entry (name/date/page count/thumbnail) for signed-in users. Never blocks or fails the export itself. */
 async function logHistoryEntry(fileName: string): Promise<void> {
@@ -38,7 +42,7 @@ async function logHistoryEntry(fileName: string): Promise<void> {
 }
 
 export function usePdfExport() {
-  const [state, setState] = useState<ExportState>({ status: 'idle', completed: 0, total: 0 })
+  const [state, setState] = useState<ExportState>(IDLE_STATE)
 
   const exportPdf = useCallback(async () => {
     const { images, pdfSettings } = useDocumentStore.getState()
@@ -55,10 +59,12 @@ export function usePdfExport() {
         setState((prev) => ({ ...prev, completed, total }))
       })
       const fileName = `${pdfSettings.metadata.title || 'doclee-document'}.pdf`
-      await shareOrDownloadPdf(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' }), fileName)
-      setState((prev) => ({ ...prev, status: 'success' }))
+      const blob = new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })
+
+      // Hand the result back to the UI instead of auto-sharing/downloading —
+      // the export screen shows a preview with explicit Share/Download actions.
+      setState((prev) => ({ ...prev, status: 'success', resultBlob: blob, resultFileName: fileName }))
       markExported()
-      toast.success('PDF exported')
       void logHistoryEntry(fileName)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Export failed'
@@ -67,7 +73,18 @@ export function usePdfExport() {
     }
   }, [])
 
-  const reset = useCallback(() => setState({ status: 'idle', completed: 0, total: 0 }), [])
+  const downloadResult = useCallback(() => {
+    if (!state.resultBlob || !state.resultFileName) return
+    downloadBlob(state.resultBlob, state.resultFileName)
+  }, [state.resultBlob, state.resultFileName])
 
-  return { ...state, exportPdf, reset }
+  const shareResult = useCallback(async () => {
+    if (!state.resultBlob || !state.resultFileName) return
+    const shared = await shareBlob(state.resultBlob, state.resultFileName)
+    if (!shared) toast.error("Couldn't share — try downloading instead.")
+  }, [state.resultBlob, state.resultFileName])
+
+  const reset = useCallback(() => setState(IDLE_STATE), [])
+
+  return { ...state, exportPdf, downloadResult, shareResult, reset }
 }

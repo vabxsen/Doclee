@@ -9,15 +9,18 @@ export function downloadBlob(blob: Blob, fileName: string): void {
   URL.revokeObjectURL(url)
 }
 
-export async function shareOrDownloadPdf(blob: Blob, fileName: string): Promise<void> {
+export function canShareFiles(): boolean {
+  return typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+}
+
+/** Returns false if the user cancelled or the browser rejected the share (e.g. no file-share support) — never throws. */
+export async function shareBlob(blob: Blob, fileName: string): Promise<boolean> {
   const file = new File([blob], fileName, { type: 'application/pdf' })
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file], title: fileName })
-      return
-    } catch {
-      // User cancelled or share failed — fall back to a direct download.
-    }
+  if (!navigator.canShare?.({ files: [file] })) return false
+  try {
+    await navigator.share({ files: [file], title: fileName })
+    return true
+  } catch {
+    return false
   }
-  downloadBlob(blob, fileName)
 }
