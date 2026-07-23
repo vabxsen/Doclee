@@ -48,7 +48,10 @@ app.get('/health', (_req, res) => {
   res.json({ ok: true })
 })
 
-app.post('/convert', upload.single('file'), (req, res) => {
+// Firebase Hosting's "run" rewrite forwards the original request path
+// unchanged, so the client's /api/convert must be handled here directly —
+// keeping plain /convert too for direct curl/health-check convenience.
+app.post(['/convert', '/api/convert'], upload.single('file'), (req, res) => {
   const target = String(req.query.to || req.body?.to || '').toLowerCase()
   const file = req.file
 

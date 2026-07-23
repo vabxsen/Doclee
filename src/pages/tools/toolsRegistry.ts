@@ -171,9 +171,8 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
     description: 'Convert .docx documents into PDF.',
     icon: FileText,
     category: 'convert',
-    status: 'coming-soon',
+    status: 'live',
     backendNeed: 'backend',
-    followUpNote: 'Runs on a LibreOffice-powered Cloud Run service — deploy services/converter to go live.',
   },
   {
     slug: 'pdf-to-word',
@@ -183,7 +182,8 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
     category: 'convert',
     status: 'coming-soon',
     backendNeed: 'backend',
-    followUpNote: 'Runs on a LibreOffice-powered Cloud Run service — deploy services/converter to go live.',
+    followUpNote:
+      "The converter service is deployed, but LibreOffice's PDF-import filter isn't producing usable output yet — needs more work.",
   },
   {
     slug: 'ppt-to-pdf',
@@ -191,9 +191,8 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
     description: 'Convert slide decks into PDF.',
     icon: Presentation,
     category: 'convert',
-    status: 'coming-soon',
+    status: 'live',
     backendNeed: 'backend',
-    followUpNote: 'Runs on a LibreOffice-powered Cloud Run service — deploy services/converter to go live.',
   },
   {
     slug: 'excel-to-pdf',
@@ -201,9 +200,8 @@ export const TOOLS_REGISTRY: ToolDefinition[] = [
     description: 'Convert spreadsheets into PDF.',
     icon: FileSpreadsheet,
     category: 'convert',
-    status: 'coming-soon',
+    status: 'live',
     backendNeed: 'backend',
-    followUpNote: 'Runs on a LibreOffice-powered Cloud Run service — deploy services/converter to go live.',
   },
   {
     slug: 'document-scanner',
