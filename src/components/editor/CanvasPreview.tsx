@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useDocumentStore } from '@/store/useDocumentStore'
 import { useUiStore } from '@/store/useUiStore'
 import { useCanvasRenderer } from '@/hooks/useCanvasRenderer'
@@ -19,10 +20,14 @@ export function CanvasPreview() {
   const zoom = useUiStore((state) => state.zoom)
 
   const activeAsset = images.find((image) => image.id === activeImageId)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  const { url, loading } = useCanvasRenderer(activeAsset, {
+  // Draws straight into the canvas on every edit tick — no PNG encode, no
+  // object-URL churn, no <img> re-decode, so slider/crop dragging stays smooth.
+  const { loading } = useCanvasRenderer(activeAsset, {
     maxDimension: PREVIEW_MAX_DIMENSION,
     ignoreCrop: isCropping,
+    targetCanvasRef: canvasRef,
   })
 
   if (!activeAsset) {
@@ -43,18 +48,17 @@ export function CanvasPreview() {
         className="relative max-h-full max-w-full"
         style={{ transform: `scale(${zoom})`, transformOrigin: 'center' }}
       >
-        {loading || !url ? (
+        {loading && (
           <div className="flex size-96 items-center justify-center">
             <Spinner size={28} />
           </div>
-        ) : (
-          <img
-            src={url}
-            alt={activeAsset.fileName}
-            className="max-h-[75svh] w-auto rounded-[4px] object-contain shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
-          />
         )}
-        {isCropping && url && (
+        <canvas
+          ref={canvasRef}
+          aria-label={activeAsset.fileName}
+          className={`max-h-[75svh] w-auto rounded-[4px] object-contain shadow-[0_24px_60px_rgba(0,0,0,0.5)] ${loading ? 'hidden' : ''}`}
+        />
+        {isCropping && !loading && (
           <CropTool
             crop={activeAsset.edits.crop}
             onChange={handleCropChange}

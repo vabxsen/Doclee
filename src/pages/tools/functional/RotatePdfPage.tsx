@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { PDFDocument, degrees } from 'pdf-lib'
 import { toast } from 'sonner'
 import { RotateCw } from 'lucide-react'
@@ -22,9 +22,10 @@ export function RotatePdfPage() {
   const [resultBlob, setResultBlob] = useState<Blob | null>(null)
   const { doc, pageCount, loading, error } = useLoadedPdf(file)
 
-  const rotatePage = (index: number) => {
+  const rotatePage = useCallback((pageNumber: number) => {
+    const index = pageNumber - 1
     setRotations((prev) => ({ ...prev, [index]: ((prev[index] ?? 0) + 90) % 360 }))
-  }
+  }, [])
 
   const rotateAll = () => {
     setRotations(() => {
@@ -103,12 +104,8 @@ export function RotatePdfPage() {
                     doc={doc}
                     pageNumber={i + 1}
                     rotationDeg={rotations[i] ?? 0}
-                    onClick={() => rotatePage(i)}
-                    overlay={
-                      <span className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-ink">
-                        <RotateCw className="size-3" />
-                      </span>
-                    }
+                    onClick={rotatePage}
+                    cornerIcon={RotateCw}
                   />
                 ))}
               </div>

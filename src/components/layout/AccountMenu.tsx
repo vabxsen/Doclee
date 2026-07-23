@@ -7,7 +7,6 @@ import { snapTransition } from '@/lib/motion'
 import { GoogleIcon } from '@/components/shared/GoogleIcon'
 import { Button } from '@/components/ui/Button'
 import { useAuthStore } from '@/store/useAuthStore'
-import { signInWithGoogle, signOutUser } from '@/firebase/auth'
 import { isFirebaseConfigured } from '@/firebase/config'
 
 function initialsFromName(name: string | null): string {
@@ -21,6 +20,7 @@ function initialsFromName(name: string | null): string {
 
 export function AccountMenu() {
   const user = useAuthStore((state) => state.user)
+  const isAuthLoading = useAuthStore((state) => state.isLoading)
   const [open, setOpen] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
   const [signingOut, setSigningOut] = useState(false)
@@ -59,6 +59,7 @@ export function AccountMenu() {
   const handleSignIn = async () => {
     setSigningIn(true)
     try {
+      const { signInWithGoogle } = await import('@/firebase/auth')
       await signInWithGoogle()
     } catch (error) {
       const description = error instanceof Error ? error.message : 'Unknown error'
@@ -70,6 +71,7 @@ export function AccountMenu() {
   const handleSignOut = async () => {
     setSigningOut(true)
     try {
+      const { signOutUser } = await import('@/firebase/auth')
       await signOutUser()
       toast.success('Signed out')
       setOpen(false)
@@ -90,7 +92,7 @@ export function AccountMenu() {
         aria-label="Account"
         className="focus-ring flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/8 text-ink transition-colors hover:bg-white/12"
       >
-        {user ? (
+        {isAuthLoading ? null : user ? (
           user.photoURL ? (
             <img src={user.photoURL} alt="" className="size-full object-cover" />
           ) : (

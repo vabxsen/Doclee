@@ -9,6 +9,8 @@ export interface RenderOptions {
   exactLongEdge?: number
   /** Renders the full rotated/flipped/filtered image ignoring the crop rect — used while the crop tool is active, so its overlay can be positioned against the uncropped bounds. */
   ignoreCrop?: boolean
+  /** Draws into this canvas instead of creating a new one — for a live preview that redraws in place without the cost of allocating (and later encoding) a fresh canvas every tick. Resized to fit the render if needed. */
+  targetCanvas?: HTMLCanvasElement
 }
 
 /**
@@ -45,12 +47,13 @@ export function renderEditedImage(
     outputHeight = Math.max(1, Math.round(outputHeight * scale))
   }
 
-  const canvas = document.createElement('canvas')
-  canvas.width = outputWidth
-  canvas.height = outputHeight
+  const canvas = options.targetCanvas ?? document.createElement('canvas')
+  if (canvas.width !== outputWidth) canvas.width = outputWidth
+  if (canvas.height !== outputHeight) canvas.height = outputHeight
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Canvas 2D context unavailable')
 
+  ctx.clearRect(0, 0, outputWidth, outputHeight)
   ctx.save()
   ctx.filter = getCssFilterString(edits.filters)
 

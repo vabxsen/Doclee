@@ -14,6 +14,18 @@ export default defineConfig({
       injectRegister: null,
       workbox: {
         globPatterns: ['**/*.{js,css,html,woff2,svg,png,ico}'],
+        // These are only needed by specific, less-common features (HEIC/TIFF
+        // photo uploads, the PDF page-picker tools, sign-in/history) — force-
+        // downloading them on every install/update isn't worth it when most
+        // visitors just use the core Image-to-PDF flow. They're still cached
+        // on-demand (CacheFirst below) the first time each is actually used.
+        globIgnores: [
+          '**/vendor-heic-*.js',
+          '**/vendor-tiff-*.js',
+          '**/vendor-firebase-auth-*.js',
+          '**/vendor-firebase-firestore-*.js',
+          '**/vendor-pdfjs-*.js',
+        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/__\//],
         runtimeCaching: [
@@ -24,6 +36,19 @@ export default defineConfig({
               url.hostname.includes('firebaseapp.com') ||
               url.hostname.includes('cloudfunctions.net'),
             handler: 'NetworkOnly',
+          },
+          {
+            // Content-hashed filenames are immutable per hash, so CacheFirst
+            // is safe — no need to ever revalidate a given hash against the network.
+            urlPattern: ({ url }) =>
+              /\/assets\/vendor-(heic|tiff|firebase-auth|firebase-firestore|pdfjs)-.*\.js$/.test(
+                url.pathname,
+              ),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'optional-vendor-chunks',
+              expiration: { maxEntries: 20 },
+            },
           },
         ],
       },
@@ -77,6 +102,30 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        // Deterministic names for optional/conditionally-needed vendors, so
+        // the PWA precache config below can reliably exclude them by name —
+        // Rollup's auto-generated chunk names aren't stable enough to glob.
+        manualChunks(id) {
+          if (id.includes('node_modules/heic2any')) return 'vendor-heic'
+          if (id.includes('node_modules/utif') || id.includes('node_modules/pako')) return 'vendor-tiff'
+          if (id.includes('node_modules/firebase/auth') || id.includes('node_modules/@firebase/auth')) {
+            return 'vendor-firebase-auth'
+          }
+          if (
+            id.includes('node_modules/firebase/firestore') ||
+            id.includes('node_modules/@firebase/firestore')
+          ) {
+            return 'vendor-firebase-firestore'
+          }
+          if (id.includes('node_modules/pdfjs-dist')) return 'vendor-pdfjs'
+          return undefined
+        },
+      },
     },
   },
   server: {

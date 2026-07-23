@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import { toast } from 'sonner'
 import { CircleCheck } from 'lucide-react'
@@ -23,14 +23,15 @@ export function ExtractPagesPage() {
   const [resultBlob, setResultBlob] = useState<Blob | null>(null)
   const { doc, pageCount, loading, error } = useLoadedPdf(file)
 
-  const toggle = (index: number) => {
+  const toggle = useCallback((pageNumber: number) => {
+    const index = pageNumber - 1
     setSelected((prev) => {
       const next = new Set(prev)
       if (next.has(index)) next.delete(index)
       else next.add(index)
       return next
     })
-  }
+  }, [])
 
   const handleApply = async () => {
     if (!file || selected.size === 0) return
@@ -88,15 +89,11 @@ export function ExtractPagesPage() {
                     key={i}
                     doc={doc}
                     pageNumber={i + 1}
-                    onClick={() => toggle(i)}
+                    onClick={toggle}
                     className={cn(selected.has(i) && 'ring-2 ring-success')}
-                    overlay={
-                      selected.has(i) && (
-                        <span className="absolute right-1 top-1 flex size-6 items-center justify-center rounded-full bg-success text-black">
-                          <CircleCheck className="size-3.5" />
-                        </span>
-                      )
-                    }
+                    cornerIcon={selected.has(i) ? CircleCheck : undefined}
+                    cornerWrapClassName="bg-success text-black"
+                    cornerIconClassName="size-3.5"
                   />
                 ))}
               </div>

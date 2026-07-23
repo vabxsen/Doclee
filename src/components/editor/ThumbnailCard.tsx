@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { motion } from 'framer-motion'
@@ -17,7 +18,7 @@ interface ThumbnailCardProps {
 
 const NEXT_ROTATION: Record<Rotation, Rotation> = { 0: 90, 90: 180, 180: 270, 270: 0 }
 
-export function ThumbnailCard({ asset, index, active }: ThumbnailCardProps) {
+function ThumbnailCardComponent({ asset, index, active }: ThumbnailCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: asset.id,
   })
@@ -51,7 +52,7 @@ export function ThumbnailCard({ asset, index, active }: ThumbnailCardProps) {
       <motion.div
         ref={setNodeRef}
         style={{ transform: CSS.Transform.toString(transform), transition }}
-        layout
+        layout="position"
         onClick={() => setActiveImage(asset.id)}
         className={cn(
           'group relative flex w-24 shrink-0 cursor-pointer flex-col gap-1.5 rounded-[16px] p-2 transition-colors md:w-full',
@@ -83,3 +84,6 @@ export function ThumbnailCard({ asset, index, active }: ThumbnailCardProps) {
     </ContextMenu>
   )
 }
+
+/** Memoized so dragging a slider on the active image doesn't reconcile every other thumbnail. */
+export const ThumbnailCard = memo(ThumbnailCardComponent)

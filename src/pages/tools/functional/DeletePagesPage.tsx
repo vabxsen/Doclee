@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { PDFDocument } from 'pdf-lib'
 import { toast } from 'sonner'
 import { Trash2 } from 'lucide-react'
@@ -23,14 +23,15 @@ export function DeletePagesPage() {
   const [resultBlob, setResultBlob] = useState<Blob | null>(null)
   const { doc, pageCount, loading, error } = useLoadedPdf(file)
 
-  const toggle = (index: number) => {
+  const toggle = useCallback((pageNumber: number) => {
+    const index = pageNumber - 1
     setMarked((prev) => {
       const next = new Set(prev)
       if (next.has(index)) next.delete(index)
       else next.add(index)
       return next
     })
-  }
+  }, [])
 
   const handleApply = async () => {
     if (!file || marked.size === 0) return
@@ -90,15 +91,10 @@ export function DeletePagesPage() {
                     key={i}
                     doc={doc}
                     pageNumber={i + 1}
-                    onClick={() => toggle(i)}
+                    onClick={toggle}
                     className={cn(marked.has(i) && 'opacity-40 ring-2 ring-error')}
-                    overlay={
-                      marked.has(i) && (
-                        <span className="absolute inset-0 flex items-center justify-center bg-black/40">
-                          <Trash2 className="size-5 text-error" />
-                        </span>
-                      )
-                    }
+                    centerIcon={marked.has(i) ? Trash2 : undefined}
+                    centerIconClassName="text-error"
                   />
                 ))}
               </div>
