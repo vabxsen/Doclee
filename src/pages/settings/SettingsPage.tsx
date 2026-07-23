@@ -6,6 +6,7 @@ import {
   FileImage,
   LogOut,
   Menu,
+  Pencil,
   Share,
   ShieldCheck,
   SquarePlus,
@@ -14,10 +15,13 @@ import {
 import { SEO } from '@/components/shared/SEO'
 import { BottomNavSpacer } from '@/components/layout/BottomNavSpacer'
 import { GoogleIcon } from '@/components/shared/GoogleIcon'
+import { GithubIcon } from '@/components/shared/GithubIcon'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Button } from '@/components/ui/Button'
+import { IconButton } from '@/components/ui/IconButton'
 import { Dialog } from '@/components/ui/Dialog'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { cn } from '@/lib/cn'
 import { useDocumentStore } from '@/store/useDocumentStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
@@ -147,24 +151,30 @@ function AccountSection() {
 function PersonalInfoSection() {
   const user = useAuthStore((state) => state.user)
   const [name, setName] = useState(user?.displayName ?? '')
+  const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
 
   // Keep the field in sync if the signed-in user changes (or their name
   // updates elsewhere) — but not while the user is mid-edit.
   useEffect(() => {
-    if (!saving) setName(user?.displayName ?? '')
-  }, [user?.displayName, saving])
+    if (!isEditing) setName(user?.displayName ?? '')
+  }, [user?.displayName, isEditing])
 
   if (!user) return null
 
   const trimmed = name.trim()
-  const dirty = trimmed.length > 0 && trimmed !== (user.displayName ?? '')
+  const canSave = trimmed.length > 0 && trimmed !== (user.displayName ?? '')
 
   const handleSave = async () => {
+    if (!canSave) {
+      setIsEditing(false)
+      return
+    }
     setSaving(true)
     try {
       await updateDisplayName(trimmed)
       toast.success('Name updated')
+      setIsEditing(false)
     } catch (error) {
       const description = error instanceof Error ? error.message : 'Unknown error'
       toast.error(`Couldn't update name: ${description}`)
@@ -173,18 +183,47 @@ function PersonalInfoSection() {
     }
   }
 
+  const handleCancel = () => {
+    setName(user.displayName ?? '')
+    setIsEditing(false)
+  }
+
   return (
     <SectionCard title="Personal info">
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs text-ink-muted" htmlFor="personal-info-name">
-          Name
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-xs text-ink-muted" htmlFor="personal-info-name">
+            Name
+          </label>
+          {!isEditing && (
+            <IconButton
+              icon={<Pencil className="size-3.5" />}
+              label="Edit name"
+              className="size-7"
+              onClick={() => setIsEditing(true)}
+            />
+          )}
+        </div>
         <input
           id="personal-info-name"
           value={name}
+          disabled={!isEditing}
           onChange={(event) => setName(event.target.value)}
-          className="focus-ring glass h-10 w-full rounded-[14px] px-3 text-sm text-ink"
+          className={cn(
+            'focus-ring glass h-10 w-full rounded-[14px] px-3 text-sm text-ink',
+            !isEditing && 'cursor-not-allowed text-ink-muted',
+          )}
         />
+        {isEditing && (
+          <div className="flex justify-end gap-2 pt-1">
+            <Button size="sm" variant="secondary" disabled={saving} onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button size="sm" loading={saving} disabled={!canSave} onClick={() => void handleSave()}>
+              Save
+            </Button>
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-1.5">
         <label className="text-xs text-ink-muted" htmlFor="personal-info-email">
@@ -198,11 +237,6 @@ function PersonalInfoSection() {
         />
         <p className="text-xs text-ink-muted">Managed by your Google account.</p>
       </div>
-      {dirty && (
-        <Button size="sm" className="self-end" loading={saving} onClick={() => void handleSave()}>
-          Save
-        </Button>
-      )}
     </SectionCard>
   )
 }
@@ -319,6 +353,19 @@ export function SettingsPage() {
               or PDFs.
             </p>
           </div>
+        </SectionCard>
+
+        <SectionCard title="Credits">
+          <p className="text-sm text-ink">Made with ❤️ by Vaibhav Sen</p>
+          <a
+            href="https://github.com/vabxsen/Doclee"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="focus-ring -ml-1 flex w-fit items-center gap-1.5 rounded-[8px] px-1 py-0.5 text-xs text-ink-muted transition-colors hover:text-ink"
+          >
+            <GithubIcon className="size-3.5" />
+            github.com/vabxsen/Doclee
+          </a>
         </SectionCard>
       </div>
       <BottomNavSpacer />
