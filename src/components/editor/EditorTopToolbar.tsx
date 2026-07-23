@@ -91,7 +91,7 @@ export function EditorTopToolbar() {
           label="Edit"
           active={isMobileSettingsOpen}
           onClick={() => setMobileSettingsOpen(!isMobileSettingsOpen)}
-          className="md:hidden"
+          className="bg-black text-white hover:bg-black hover:text-white md:hidden"
         />
       </div>
     </div>

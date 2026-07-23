@@ -4,7 +4,9 @@ import { APP_NAME } from '@/lib/constants'
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border-glass">
+    // Hidden on mobile — the bottom nav already covers navigation there, and
+    // the footer's "All tools" anchor targets a section that's desktop-only.
+    <footer className="hidden border-t border-border-glass md:block">
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-10">
         <div className="flex flex-col items-start justify-between gap-8 sm:flex-row">
           <div>
