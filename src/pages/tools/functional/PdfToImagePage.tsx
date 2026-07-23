@@ -64,7 +64,7 @@ export function PdfToImagePage() {
           title="Export complete"
           description={`Converted ${entries.length} page${entries.length === 1 ? '' : 's'} to ${format.toUpperCase()}.`}
           downloadLabel={entries.length > 1 ? 'Download .zip' : 'Download'}
-          onDownload={() => void downloadFileOrZip(entries, `${baseFileName(file!.name)}-images.zip`)}
+          onDownload={(fileName) => void downloadFileOrZip(entries, fileName)}
           onReset={reset}
           resultFileName={
             entries.length === 1 ? entries[0]!.name : `${baseFileName(file!.name)}-images.zip`

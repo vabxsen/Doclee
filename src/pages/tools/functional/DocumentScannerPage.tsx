@@ -118,7 +118,7 @@ export function DocumentScannerPage() {
         <ResultCard
           title="Scan complete"
           description={`${pages.length} page${pages.length === 1 ? '' : 's'} saved as a PDF.`}
-          onDownload={() => downloadBlob(resultBlob, 'scan.pdf')}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName="scan.pdf"

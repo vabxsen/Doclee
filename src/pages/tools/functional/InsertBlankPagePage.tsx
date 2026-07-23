@@ -56,7 +56,7 @@ export function InsertBlankPagePage() {
         <ResultCard
           title="Blank page added"
           description="A blank page was inserted into your PDF."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-edited.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-edited.pdf`}

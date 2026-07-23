@@ -73,7 +73,7 @@ export function SplitPdfPage() {
           title="Split complete"
           description={`Created ${resultCount} PDF${resultCount === 1 ? '' : 's'}.`}
           downloadLabel={resultCount > 1 ? 'Download .zip' : 'Download'}
-          onDownload={() => void downloadFileOrZip(pendingEntries, `${baseFileName(file!.name)}-split.zip`)}
+          onDownload={(fileName) => void downloadFileOrZip(pendingEntries, fileName)}
           onReset={reset}
           resultBlob={pendingEntries[0]?.blob}
           resultFileName={

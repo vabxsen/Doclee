@@ -69,7 +69,7 @@ export function DeletePagesPage() {
         <ResultCard
           title="Pages removed"
           description={`Deleted ${marked.size} page${marked.size === 1 ? '' : 's'}.`}
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-edited.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-edited.pdf`}

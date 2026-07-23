@@ -13,11 +13,11 @@ export async function downloadAsZip(entries: ZipEntry[], zipFileName: string): P
   downloadBlob(blob, zipFileName)
 }
 
-/** Downloads a single file directly, or bundles multiple as a zip. */
-export async function downloadFileOrZip(entries: ZipEntry[], zipFileName: string): Promise<void> {
+/** Downloads a single file directly (as `outputFileName`), or bundles multiple as a zip. */
+export async function downloadFileOrZip(entries: ZipEntry[], outputFileName: string): Promise<void> {
   if (entries.length === 1) {
-    downloadBlob(entries[0]!.blob, entries[0]!.name)
+    downloadBlob(entries[0]!.blob, outputFileName)
     return
   }
-  await downloadAsZip(entries, zipFileName)
+  await downloadAsZip(entries, outputFileName)
 }

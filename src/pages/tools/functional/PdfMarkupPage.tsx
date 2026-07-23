@@ -295,7 +295,7 @@ export function PdfMarkupPage() {
         <ResultCard
           title="Changes applied"
           description={`Page ${pageIndex + 1} has been marked up.`}
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-edited.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-edited.pdf`}

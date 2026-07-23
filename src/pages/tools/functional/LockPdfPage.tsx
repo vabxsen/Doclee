@@ -53,7 +53,7 @@ export function LockPdfPage() {
         <ResultCard
           title="PDF locked"
           description="Anyone opening this file will need the password you set."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-locked.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-locked.pdf`}

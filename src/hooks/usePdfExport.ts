@@ -73,16 +73,22 @@ export function usePdfExport() {
     }
   }, [])
 
-  const downloadResult = useCallback(() => {
-    if (!state.resultBlob || !state.resultFileName) return
-    downloadBlob(state.resultBlob, state.resultFileName)
-  }, [state.resultBlob, state.resultFileName])
+  const downloadResult = useCallback(
+    (fileName?: string) => {
+      if (!state.resultBlob) return
+      downloadBlob(state.resultBlob, fileName ?? state.resultFileName ?? 'document.pdf')
+    },
+    [state.resultBlob, state.resultFileName],
+  )
 
-  const shareResult = useCallback(async () => {
-    if (!state.resultBlob || !state.resultFileName) return
-    const shared = await shareBlob(state.resultBlob, state.resultFileName)
-    if (!shared) toast.error("Couldn't share — try downloading instead.")
-  }, [state.resultBlob, state.resultFileName])
+  const shareResult = useCallback(
+    async (fileName?: string) => {
+      if (!state.resultBlob) return
+      const shared = await shareBlob(state.resultBlob, fileName ?? state.resultFileName ?? 'document.pdf')
+      if (!shared) toast.error("Couldn't share — try downloading instead.")
+    },
+    [state.resultBlob, state.resultFileName],
+  )
 
   const reset = useCallback(() => setState(IDLE_STATE), [])
 

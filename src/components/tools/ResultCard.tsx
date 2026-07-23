@@ -2,16 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { CircleCheck, Download, RotateCcw } from 'lucide-react'
 import { GlassCard } from '@/components/ui/GlassCard'
 import { Button } from '@/components/ui/Button'
+import { FileNameField } from '@/components/tools/FileNameField'
 import { cn } from '@/lib/cn'
+import { splitFileName } from '@/utils/fileName'
 import { logResultToHistory } from '@/services/projectHistory/logResultToHistory'
 
 interface ResultCardProps {
   title: string
   description: string
-  onDownload: () => void
+  onDownload: (fileName: string) => void
   onReset: () => void
   downloadLabel?: string
-  /** When provided, the result is logged to the signed-in user's history. */
+  /** When provided, the result is logged to the signed-in user's history, and the file can be renamed before saving. */
   resultBlob?: Blob
   resultFileName?: string
   /** Page count for history when the blob isn't a readable PDF (zips, docx, …). */
@@ -34,6 +36,9 @@ export function ResultCard({
   const timersRef = useRef<number[]>([])
   const loggedRef = useRef(false)
 
+  const { base: defaultBase, extension } = splitFileName(resultFileName ?? 'document.pdf')
+  const [baseName, setBaseName] = useState(defaultBase)
+
   useEffect(() => {
     if (loggedRef.current || !resultFileName) return
     loggedRef.current = true
@@ -50,7 +55,7 @@ export function ResultCard({
   const handleDownload = () => {
     if (downloadState !== 'idle') return
     setDownloadState('downloading')
-    onDownload()
+    onDownload(`${baseName.trim() || defaultBase}.${extension}`)
     timersRef.current.push(
       window.setTimeout(() => setDownloadState('done'), 900),
       window.setTimeout(() => setDownloadState('idle'), 3500),
@@ -66,6 +71,9 @@ export function ResultCard({
         <p className="text-base font-semibold text-ink">{title}</p>
         <p className="mt-1 text-sm text-ink-muted">{description}</p>
       </div>
+      {resultFileName && (
+        <FileNameField value={baseName} onChange={setBaseName} extension={extension} className="mt-1" />
+      )}
       <div className="mt-2 flex gap-2">
         <Button variant="secondary" leadingIcon={<RotateCcw className="size-3.5" />} onClick={onReset}>
           Start over

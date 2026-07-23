@@ -55,7 +55,7 @@ export function ConversionToolPage({ slug, sourceLabel }: ConversionToolPageProp
         <ResultCard
           title="Conversion complete"
           description={result.fileName}
-          onDownload={() => downloadBlob(result.blob, result.fileName)}
+          onDownload={(fileName) => downloadBlob(result.blob, fileName)}
           onReset={reset}
           resultBlob={result.blob}
           resultFileName={result.fileName}

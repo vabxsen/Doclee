@@ -118,7 +118,7 @@ export function SignPdfPage() {
         <ResultCard
           title="PDF signed"
           description="Your signature has been placed on the page."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-signed.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-signed.pdf`}

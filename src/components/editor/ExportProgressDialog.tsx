@@ -5,16 +5,18 @@ import { Dialog } from '@/components/ui/Dialog'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { Button } from '@/components/ui/Button'
 import { Spinner } from '@/components/ui/Spinner'
+import { FileNameField } from '@/components/tools/FileNameField'
 import { scaleIn } from '@/lib/motion'
 import { canShareFiles } from '@/utils/download'
+import { splitFileName } from '@/utils/fileName'
 import { pdfjsLib } from '@/lib/pdfjs'
 import type { ExportState } from '@/hooks/usePdfExport'
 
 interface ExportProgressDialogProps extends ExportState {
   open: boolean
   onClose: () => void
-  downloadResult: () => void
-  shareResult: () => void
+  downloadResult: (fileName?: string) => void
+  shareResult: (fileName?: string) => void
 }
 
 /** Renders the result PDF's first page as a preview image, for the success screen. */
@@ -69,11 +71,23 @@ export function ExportProgressDialog({
   total,
   errorMessage,
   resultBlob,
+  resultFileName,
   downloadResult,
   shareResult,
 }: ExportProgressDialogProps) {
   const percent = total > 0 ? (completed / total) * 100 : 0
   const previewUrl = usePdfPreview(status === 'success' ? resultBlob : undefined)
+
+  const { base: defaultBase, extension } = splitFileName(resultFileName ?? 'document.pdf')
+  const [baseName, setBaseName] = useState(defaultBase)
+
+  useEffect(() => {
+    if (status === 'success') setBaseName(defaultBase)
+    // Only reset when a fresh success result arrives, not on every keystroke.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, defaultBase])
+
+  const finalFileName = `${baseName.trim() || defaultBase}.${extension}`
 
   return (
     <Dialog open={open} onClose={onClose} size={status === 'success' ? 'md' : 'sm'}>
@@ -118,18 +132,23 @@ export function ExportProgressDialog({
               </motion.span>
               <p className="text-sm font-semibold text-ink">Your PDF is ready</p>
             </div>
+            <FileNameField value={baseName} onChange={setBaseName} extension={extension} />
             <div className="flex w-full gap-2">
               {canShareFiles() && (
                 <Button
                   variant="secondary"
                   className="flex-1"
                   leadingIcon={<Share2 className="size-3.5" />}
-                  onClick={() => void shareResult()}
+                  onClick={() => void shareResult(finalFileName)}
                 >
                   Share
                 </Button>
               )}
-              <Button className="flex-1" leadingIcon={<Download className="size-3.5" />} onClick={downloadResult}>
+              <Button
+                className="flex-1"
+                leadingIcon={<Download className="size-3.5" />}
+                onClick={() => downloadResult(finalFileName)}
+              >
                 Download PDF
               </Button>
             </div>

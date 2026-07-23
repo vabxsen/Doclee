@@ -59,7 +59,7 @@ export function WatermarkPdfPage() {
         <ResultCard
           title="Watermark applied"
           description="Every page now carries your watermark."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-watermarked.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-watermarked.pdf`}

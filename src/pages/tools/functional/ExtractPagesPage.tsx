@@ -67,7 +67,7 @@ export function ExtractPagesPage() {
         <ResultCard
           title="Pages extracted"
           description={`Pulled ${selected.size} page${selected.size === 1 ? '' : 's'} into a new PDF.`}
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-extracted.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-extracted.pdf`}

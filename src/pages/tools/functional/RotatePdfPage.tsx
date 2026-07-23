@@ -74,7 +74,7 @@ export function RotatePdfPage() {
         <ResultCard
           title="Rotation applied"
           description="Your pages have been rotated."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-rotated.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-rotated.pdf`}

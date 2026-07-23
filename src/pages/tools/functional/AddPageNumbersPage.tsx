@@ -58,7 +58,7 @@ export function AddPageNumbersPage() {
         <ResultCard
           title="Page numbers added"
           description="Every page is now numbered."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-numbered.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-numbered.pdf`}

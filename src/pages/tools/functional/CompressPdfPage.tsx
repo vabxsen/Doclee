@@ -83,7 +83,7 @@ export function CompressPdfPage() {
         <ResultCard
           title="Compression complete"
           description={`${formatBytes(file.size)} → ${formatBytes(resultBlob.size)}`}
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file.name)}-compressed.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file.name)}-compressed.pdf`}

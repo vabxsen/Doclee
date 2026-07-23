@@ -59,7 +59,7 @@ export function UnlockPdfPage() {
         <ResultCard
           title="PDF unlocked"
           description="The password has been removed — anyone can open it now."
-          onDownload={() => downloadBlob(resultBlob, `${baseFileName(file!.name)}-unlocked.pdf`)}
+          onDownload={(fileName) => downloadBlob(resultBlob, fileName)}
           onReset={reset}
           resultBlob={resultBlob}
           resultFileName={`${baseFileName(file!.name)}-unlocked.pdf`}
