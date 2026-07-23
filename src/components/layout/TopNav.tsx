@@ -13,7 +13,7 @@ export function TopNav() {
     <header className="glass sticky top-0 z-40 border-x-0 border-t-0">
       <div className="mx-auto flex h-16 max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-10">
         <Link to="/" className="focus-ring flex items-center gap-2 rounded-[10px]">
-          <img src="/logo.png" alt="" className="size-8 rounded-[10px]" />
+          <img src="/logo.png" alt="" className="size-10 rounded-[12px]" />
           <span className="text-base font-semibold tracking-tight text-ink">{APP_NAME}</span>
         </Link>
 
