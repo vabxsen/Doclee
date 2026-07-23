@@ -5,10 +5,12 @@ import {
   getRedirectResult,
   signOut,
   onAuthStateChanged,
+  updateProfile,
   type Auth,
   type User,
 } from 'firebase/auth'
 import { getFirebaseApp } from '@/firebase/app'
+import { useAuthStore } from '@/store/useAuthStore'
 
 let auth: Auth | null = null
 
@@ -38,4 +40,17 @@ export function consumeRedirectResult(): Promise<User | null> {
 
 export function subscribeToAuthChanges(callback: (user: User | null) => void): () => void {
   return onAuthStateChanged(getFirebaseAuth(), callback)
+}
+
+/** Updates the signed-in user's display name. Email comes from Google and can't be changed here. */
+export async function updateDisplayName(name: string): Promise<void> {
+  const user = getFirebaseAuth().currentUser
+  if (!user) throw new Error('Not signed in')
+  await updateProfile(user, { displayName: name })
+  // updateProfile mutates `user` in place rather than firing
+  // onAuthStateChanged, so passing the same reference back to the store
+  // wouldn't trigger a re-render (zustand's selector hooks bail out on an
+  // unchanged reference). A shallow copy is enough — nothing reads Firebase
+  // User methods off the store, only the plain profile fields.
+  useAuthStore.getState().setUser({ ...user } as User)
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import {
   CircleCheck,
@@ -22,7 +22,7 @@ import { useDocumentStore } from '@/store/useDocumentStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useInstallPrompt } from '@/hooks/useInstallPrompt'
 import { useIsStandalone } from '@/hooks/useIsStandalone'
-import { signInWithGoogle, signOutUser } from '@/firebase/auth'
+import { signInWithGoogle, signOutUser, updateDisplayName } from '@/firebase/auth'
 import { isFirebaseConfigured } from '@/firebase/config'
 import { APP_NAME, SUPPORTED_IMAGE_EXTENSIONS } from '@/lib/constants'
 import { pluralize } from '@/lib/format'
@@ -144,6 +144,69 @@ function AccountSection() {
   )
 }
 
+function PersonalInfoSection() {
+  const user = useAuthStore((state) => state.user)
+  const [name, setName] = useState(user?.displayName ?? '')
+  const [saving, setSaving] = useState(false)
+
+  // Keep the field in sync if the signed-in user changes (or their name
+  // updates elsewhere) — but not while the user is mid-edit.
+  useEffect(() => {
+    if (!saving) setName(user?.displayName ?? '')
+  }, [user?.displayName, saving])
+
+  if (!user) return null
+
+  const trimmed = name.trim()
+  const dirty = trimmed.length > 0 && trimmed !== (user.displayName ?? '')
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await updateDisplayName(trimmed)
+      toast.success('Name updated')
+    } catch (error) {
+      const description = error instanceof Error ? error.message : 'Unknown error'
+      toast.error(`Couldn't update name: ${description}`)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <SectionCard title="Personal info">
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-ink-muted" htmlFor="personal-info-name">
+          Name
+        </label>
+        <input
+          id="personal-info-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          className="focus-ring glass h-10 w-full rounded-[14px] px-3 text-sm text-ink"
+        />
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs text-ink-muted" htmlFor="personal-info-email">
+          Email
+        </label>
+        <input
+          id="personal-info-email"
+          value={user.email ?? ''}
+          disabled
+          className="glass h-10 w-full cursor-not-allowed rounded-[14px] px-3 text-sm text-ink-muted"
+        />
+        <p className="text-xs text-ink-muted">Managed by your Google account.</p>
+      </div>
+      {dirty && (
+        <Button size="sm" className="self-end" loading={saving} onClick={() => void handleSave()}>
+          Save
+        </Button>
+      )}
+    </SectionCard>
+  )
+}
+
 export function SettingsPage() {
   const images = useDocumentStore((state) => state.images)
   const resetDocument = useDocumentStore((state) => state.resetDocument)
@@ -182,6 +245,8 @@ export function SettingsPage() {
         <SectionCard title="Account">
           <AccountSection />
         </SectionCard>
+
+        <PersonalInfoSection />
 
         <SectionCard title="Install">
           {isStandalone ? (
