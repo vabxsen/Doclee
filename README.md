@@ -14,7 +14,7 @@ Convert, edit, and organize documents entirely in your browser. Nothing is uploa
 [![TypeScript](https://img.shields.io/badge/TypeScript-blue?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![PWA](https://img.shields.io/badge/PWA-installable-5A0FC8?style=flat-square&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 
-**[🌐 Live App](https://doclee.web.app)** · **[🐛 Report a bug](../../issues)**
+**🌐 Live App → [https://doclee.web.app/](https://doclee.web.app/)** · **[🐛 Report a bug](../../issues)**
 
 </div>
 
