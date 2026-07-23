@@ -51,7 +51,7 @@ export function SettingsPanel() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="glass-strong fixed inset-0 z-50 flex flex-col md:hidden"
+              className="fixed inset-0 z-50 flex flex-col bg-black md:hidden"
             >
               <motion.div
                 initial={{ y: 24, opacity: 0 }}
