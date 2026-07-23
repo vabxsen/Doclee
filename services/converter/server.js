@@ -1,5 +1,6 @@
 const express = require('express')
 const multer = require('multer')
+const rateLimit = require('express-rate-limit')
 const { execFile } = require('node:child_process')
 const fs = require('node:fs')
 const os = require('node:os')
@@ -8,12 +9,27 @@ const crypto = require('node:crypto')
 
 const app = express()
 
+// Cloud Run's front-end proxy is one hop — needed so express-rate-limit keys
+// on the real caller's IP (X-Forwarded-For) instead of the proxy's.
+app.set('trust proxy', 1)
+
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024
 const CONVERT_TIMEOUT_MS = 55_000
 
 const upload = multer({
   dest: os.tmpdir(),
   limits: { fileSize: MAX_UPLOAD_BYTES },
+})
+
+// This endpoint is unauthenticated and each request runs a real LibreOffice
+// process — cap requests per caller so it can't be used to run up Cloud Run
+// compute costs.
+const convertLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many conversion requests — please try again in a few minutes.' },
 })
 
 // LibreOffice's own conversion filter name for each output extension we support.
@@ -51,7 +67,7 @@ app.get('/health', (_req, res) => {
 // Firebase Hosting's "run" rewrite forwards the original request path
 // unchanged, so the client's /api/convert must be handled here directly —
 // keeping plain /convert too for direct curl/health-check convenience.
-app.post(['/convert', '/api/convert'], upload.single('file'), (req, res) => {
+app.post(['/convert', '/api/convert'], convertLimiter, upload.single('file'), (req, res) => {
   const target = String(req.query.to || req.body?.to || '').toLowerCase()
   const file = req.file
 
@@ -119,7 +135,10 @@ app.post(['/convert', '/api/convert'], upload.single('file'), (req, res) => {
           return
         }
 
-        const downloadName = `${path.parse(file.originalname).name}-${crypto.randomUUID().slice(0, 8)}.${target}`
+        // Strip characters that could break out of the quoted filename= value —
+        // the uploaded name is attacker-controlled.
+        const safeBaseName = path.parse(file.originalname).name.replace(/[^\w.\- ]/g, '_')
+        const downloadName = `${safeBaseName}-${crypto.randomUUID().slice(0, 8)}.${target}`
         res.setHeader('Content-Type', OUTPUT_CONTENT_TYPES[target])
         res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`)
 
