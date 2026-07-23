@@ -8,7 +8,6 @@ import {
   Menu,
   Pencil,
   Share,
-  ShieldCheck,
   SquarePlus,
   Trash2,
 } from 'lucide-react'
@@ -342,16 +341,6 @@ export function SettingsPage() {
                 lossless PDFs.
               </p>
             </div>
-          </div>
-          <div className="flex items-start gap-3 border-t border-border-glass pt-4">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-[12px] bg-white/8 text-ink">
-              <ShieldCheck className="size-5" />
-            </span>
-            <p className="text-xs text-ink-muted">
-              No account required. Every conversion runs entirely on your device — signing in only
-              adds a synced History of file names and small previews, never your original images
-              or PDFs.
-            </p>
           </div>
         </SectionCard>
 
